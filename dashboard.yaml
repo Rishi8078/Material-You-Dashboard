@@ -1,0 +1,2095 @@
+kiosk_mode:
+  entity_settings:
+    - entity:
+        input_boolean.kiosk_mode: 'on'
+      hide_header: true
+      hide_menubutton: true
+      kiosk: true
+    - entity:
+        input_boolean.kiosk_mode: 'off'
+      hide_header: false
+      hide_menubutton: false
+      Kiosk: false
+swipe_nav:
+  wrap: false
+  enable_mouse_swipe: true
+  animate_duration: 10
+  animate: swipe
+  skip_tabs: 5,6,7,8
+  prevent_default: true
+  swipe_amount: 15
+button_card_templates:
+  entity:
+    show_state: true
+    tap_action:
+      action: more-info
+      haptic: medium
+    state:
+      - value: 'on'
+        styles:
+          card:
+            - background-color: var(--yellow)
+            - box-shadow: none
+          icon:
+            - color: var(--black)
+          name:
+            - color: var(--black)
+          label:
+            - color: var(--black)
+            - opacity: '0.5'
+      - value: 'off'
+        styles:
+          card:
+            - background: var(--contrast2)
+            - box-shadow: none
+          icon:
+            - width: 24px
+            - color: var(--contrast20)
+          name:
+            - color: var(--contrast20)
+          label:
+            - color: var(--contrast9)
+    styles:
+      grid:
+        - grid-template-columns: 33% auto 33%
+        - grid-template-rows: 34% 16% 25% 25%
+        - grid-template-areas: |
+            "i i i"
+            ". . ."
+            "s s s"
+            "n n n"
+      icon:
+        - width: 26px
+        - margin-left: '-0.5%'
+        - margin-top: 1%
+      img_cell:
+        - justify-content: flex-start
+        - margin-top: '-4px'
+      state:
+        - justify-self: start
+        - font-size: 14px
+        - font-weight: 700
+        - margin-bottom: 0px
+      card:
+        - height: 100px
+        - border-radius: 24px
+        - padding: 12px 0 12px 14px
+        - box-sizing: border-box
+        - '--mdc-ripple-press-opacity': 0
+      name:
+        - justify-self: start
+        - font-size: 12px
+views:
+  - type: sections
+    max_columns: 3
+    dense_section_placement: false
+    path: Home
+    title: Home
+    sections:
+      - type: grid
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: markdown
+                content: |
+                  {{ now().strftime('%I:%M %p') }}
+                card_mod:
+                  style: |
+                    ha-card {
+                      text-align: left;
+                      font-size: 60px;
+                      font-weight: 680;
+                      margin-top: -20px;
+                      background: none;
+                      border: none;
+                      box-shadow: none;
+                    }
+              - type: markdown
+                content: |
+                  {{ now().strftime('%A, %B %-d') }}
+                card_mod:
+                  style: |
+                    ha-card {
+                      text-align: left;
+                      font-size: 15px;
+                      font-weight: 400;
+                      margin-top: -56px;
+                      background: none;
+                      border: none;
+                      box-shadow: none;
+                    }
+          - square: false
+            type: grid
+            cards:
+              - type: custom:mushroom-template-card
+                primary: Lighting
+                secondary: >-
+                  {% set light1 = states('light.rgb_strip_2') %} {% set light2 =
+                  states('light.smart_light_rgbcw_2_2') %} {% set light3 =
+                  states('light.smart_light_rgbcw_3') %} {% set count = 0 %} {%
+                  if light1 == 'on' %}{% set count = count + 1 %}{% endif %} {%
+                  if light2 == 'on' %}{% set count = count + 1 %}{% endif %} {%
+                  if light3 == 'on' %}{% set count = count + 1 %}{% endif %} {{
+                  count }} lights on
+                icon: mdi:lightbulb
+                icon_color: |-
+                  {% set light1 = states('light.rgb_strip_2') %}
+                  {% set light2 = states('light.smart_light_rgbcw_2_2') %}
+                  {% set light3 = states('light.smart_light_rgbcw_3') %}
+                  {% if light1 == 'on' or light2 == 'on' or light3 == 'on' %}
+                    amber
+                  {% else %}
+                    disabled
+                  {% endif %}
+                tap_action:
+                  action: toggle
+                entity: light.bedroom
+                fill_container: false
+                card_mod:
+                  style: |
+                    ha-card {
+                      border: none;
+                      box-shadow: none;
+                      background: none;
+                    }
+              - type: custom:mushroom-template-card
+                primary: '{{ states(''sensor.tp_link_router_total_clients'') }} clients'
+                secondary: Total Network clients
+                icon: mdi:account-multiple
+                icon_color: purple
+                tap_action:
+                  action: more-info
+                badge_icon: ''
+                badge_color: ''
+                entity: sensor.tp_link_router_total_clients
+                card_mod:
+                  style: |
+                    ha-card {
+                      border: none;
+                      box-shadow: none;
+                      background: none;
+                    }
+              - type: custom:mushroom-template-card
+                primary: Last Wash Cycle
+                secondary: |-
+                  {% if states('input_datetime.last_wash_cycle') != 'unknown' %}
+                    {% set last_date = states('input_datetime.last_wash_cycle') %}
+                    {% set days_since_wash = (now().date() - as_datetime(last_date).date()).days %}
+                    {% if days_since_wash == 0 %}
+                      Today
+                    {% elif days_since_wash == 1 %}
+                      1 day ago
+                    {% else %}
+                      {{ days_since_wash }} days ago
+                    {% endif %}
+                  {% else %}
+                    No wash cycle data available
+                  {% endif %}
+                icon: |-
+                  {% if states('input_datetime.last_wash_cycle') != 'unknown' %}
+                    mdi:washing-machine
+                  {% else %}
+                    mdi:help-circle
+                  {% endif %}
+                icon_color: |-
+                  {% if states('input_datetime.last_wash_cycle') != 'unknown' %}
+                    {% set last_date = states('input_datetime.last_wash_cycle') %}
+                    {% set days_since_wash = (now().date() - as_datetime(last_date).date()).days %}
+                    {% if days_since_wash <= 7 %}
+                      green
+                    {% elif days_since_wash <= 14 %}
+                      yellow
+                    {% else %}
+                      red
+                    {% endif %}
+                  {% else %}
+                    red
+                  {% endif %}
+                fill_container: true
+                card_mod:
+                  style: |
+                    ha-card {
+                      border: none;
+                      box-shadow: none;
+                      background: none;
+                    }
+                tap_action:
+                  action: navigate
+                  navigation_path: '#laundry'
+              - type: conditional
+                conditions:
+                  - entity: sensor.unread_messages
+                    state_not: '0'
+                card:
+                  type: custom:mushroom-template-card
+                  primary: Studip Notifications
+                  secondary: |-
+                    {% set unread = states('sensor.unread_messages')|int %}
+                    {% if unread > 0 %}
+                      You have {{ unread }} unread message{{ 's' if unread > 1 else '' }}.
+                    {% else %}
+                      All messages are read.
+                    {% endif %}
+                  icon: mdi:email
+                  badge_icon: |-
+                    {% set unread = states('sensor.unread_messages')|int %}
+                    {% if unread > 9 %}
+                      mdi:numeric-9-plus
+                    {% elif unread > 0 and unread < 10 %}
+                      mdi:numeric-{{ unread }}
+                    {% else %}
+                      null
+                    {% endif %}
+                  badge_color: |-
+                    {% set unread = states('sensor.unread_messages')|int %}
+                    {{ 'red' if unread > 0 else 'null' }}
+                  icon_color: |-
+                    {% set unread = states('sensor.unread_messages')|int %}
+                    {{ 'red' if unread > 0 else 'grey' }}
+                  tap_action:
+                    action: url
+                    url_path: >-
+                      https://e-learning.tuhh.de/studip/dispatch.php/messages/overview
+                  entity: sensor.unread_messages
+                  card_mod:
+                    style: |
+                      ha-card {
+                        border: none;
+                        box-shadow: none;
+                        background: none;
+                      }
+              - type: conditional
+                conditions:
+                  - condition: state
+                    entity: sensor.imap_cga4987_messages
+                    state_not: '0'
+                card:
+                  type: custom:mushroom-template-card
+                  primary: Hiwi
+                  secondary: >-
+                    {% set unread = states('sensor.imap_cga4987_messages')|int
+                    %}
+
+                    {% if unread > 0 %}
+                      You have {{ unread }} message{{ 's' if unread > 1 else '' }}
+                    {% else %}
+                      All messages are read.
+                    {% endif %}
+                  icon: mdi:email
+                  badge_icon: >-
+                    {% set unread = states('sensor.imap_cga4987_messages')|int
+                    %}
+
+                    {% if unread > 9 %}
+                      mdi:numeric-9-plus
+                    {% elif unread > 0 and unread < 10 %}
+                      mdi:numeric-{{ unread }}
+                    {% else %}
+                      null
+                    {% endif %}
+                  badge_color: >-
+                    {% set unread = states('sensor.imap_cga4987_messages')|int
+                    %}
+
+                    {{ 'red' if unread > 0 else 'null' }}
+                  icon_color: >-
+                    {% set unread = states('sensor.imap_cga4987_messages')|int
+                    %}
+
+                    {{ 'red' if unread > 0 else 'grey' }}
+                  tap_action:
+                    action: url
+                    url_path: >-
+                      https://sogo.tuhh.de/SOGo/so/cga4987/Mail/view#!/Mail/0/Hiwi
+                  entity: sensor.imap_cga4987_messages
+                  card_mod:
+                    style: |
+                      ha-card {
+                        border: none;
+                        box-shadow: none;
+                        background: none;
+                      }
+              - type: conditional
+                conditions:
+                  - condition: state
+                    entity: binary_sensor.bed_occupancy_sensor_bed_occupancy_sensor
+                    state: 'on'
+                card:
+                  type: custom:mushroom-template-card
+                  primary: Bed
+                  secondary: >
+                    {# Check if the actual state is 'on' #}
+
+                    {% if
+                    is_state('binary_sensor.bed_occupancy_sensor_bed_occupancy_sensor',
+                    'on') %}
+                      Occupied
+                    {% else %}
+                      Empty
+                    {% endif %}
+                  icon: >
+                    {# Check if the actual state is 'on' #}
+
+                    {% if
+                    is_state('binary_sensor.bed_occupancy_sensor_bed_occupancy_sensor',
+                    'on') %}
+                      mdi:bed
+                    {% else %}
+                      mdi:bed-empty
+                    {% endif %}
+                  icon_color: >
+                    {# Check if the actual state is 'on' #}
+
+                    {% if
+                    is_state('binary_sensor.bed_occupancy_sensor_bed_occupancy_sensor',
+                    'on') %}
+                      green
+                    {% else %}
+                      grey
+                    {% endif %}
+                  entity: binary_sensor.bed_occupancy_sensor_bed_occupancy_sensor
+                  fill_container: true
+                  tap_action:
+                    action: more-info
+                  card_mod:
+                    style: |
+                      ha-card {
+                        border: none;
+                        box-shadow: none;
+                        background: none;
+                      }
+            columns: 1
+            title: Overview
+            grid_options:
+              columns: 6
+              rows: auto
+            view_layout:
+              grid-area: lights
+          - square: false
+            type: grid
+            cards:
+              - type: custom:mushroom-entity-card
+                entity: input_boolean.kiosk_mode
+                name: Kiosk Mode
+                icon: mdi:fullscreen
+                fill_container: true
+                tap_action:
+                  action: toggle
+                icon_color: '#FF5449'
+                card_mod:
+                  style: |
+                    ha-card {
+                      border: none;
+                      box-shadow: none;
+                      background: none;
+                    }
+              - type: custom:mushroom-entity-card
+                entity: switch.guest_wifi_5g
+                name: Guest WiFi
+                icon: mdi:wifi
+                fill_container: true
+                tap_action:
+                  action: toggle
+                card_mod:
+                  style: |
+                    ha-card {
+                      border: none;
+                      box-shadow: none;
+                      background: none;
+                    }
+            columns: 1
+            title: Quick Actions
+            grid_options:
+              columns: 6
+              rows: auto
+            view_layout:
+              grid-area: quick actions
+          - square: false
+            type: grid
+            cards:
+              - type: custom:mushroom-template-card
+                primary: |-
+                  {% if states('input_boolean.bed_automation') == 'on' %}
+                    Disable Bed automation
+                  {% else %}
+                    Enable Bed automation
+                  {% endif %}
+                secondary: |-
+                  {% if states('input_boolean.bed_automation') == 'on' %}
+                    Currently enabled
+                  {% else %}
+                    Currently disabled
+                  {% endif %}
+                icon: mdi:bed
+                badge_icon: |-
+                  {% if states('input_boolean.bed_automation') == 'off' %}
+                    null
+                  {% endif %}
+                badge_color: |-
+                  {% if states('input_boolean.bed_automation') == 'on' %}
+                    null
+                  {% else %}
+                    red
+                  {% endif %}
+                icon_color: |-
+                  {% if states('input_boolean.bed_automation') == 'on' %}
+                    green
+                  {% else %}
+                    red
+                  {% endif %}
+                tap_action:
+                  action: toggle
+                entity: input_boolean.bed_automation
+                card_mod:
+                  style: |
+                    ha-card {
+                      border: none;
+                      box-shadow: none;
+                      background: none;
+                    }
+              - type: custom:mushroom-template-card
+                primary: |-
+                  {% if states('input_boolean.presence_automation') == 'on' %}
+                    Disable motion sensor
+                  {% else %}
+                    Enable motion sensor
+                  {% endif %}
+                secondary: |-
+                  {% if states('input_boolean.presence_automation') == 'on' %}
+                    Currently enabled
+                  {% else %}
+                    Currently disabled
+                  {% endif %}
+                icon: phu:motion-sensor
+                badge_icon: |-
+                  {% if states('input_boolean.presence_automation') == 'off' %}
+                    null
+                  {% endif %}
+                badge_color: |-
+                  {% if states('input_boolean.presence_automation') == 'on' %}
+                    null
+                  {% else %}
+                    red
+                  {% endif %}
+                icon_color: |-
+                  {% if states('input_boolean.presence_automation') == 'on' %}
+                    green
+                  {% else %}
+                    red
+                  {% endif %}
+                tap_action:
+                  action: toggle
+                entity: input_boolean.presence_automation
+                card_mod:
+                  style: |
+                    ha-card {
+                      border: none;
+                      box-shadow: none;
+                      background: none;
+                    }
+            columns: 1
+            title: Automations
+            grid_options:
+              columns: 6
+              rows: auto
+            view_layout:
+              grid-area: lights
+          - square: false
+            type: grid
+            cards:
+              - type: custom:mushroom-template-card
+                entity: device_tracker.private_ble_device_e35b98
+                primary: iPhone
+                secondary: >
+                  {% if is_state('device_tracker.private_ble_device_e35b98',
+                  'home') %}
+                    Home
+                  {% else %}
+                    Away
+                  {% endif %}
+                icon: mdi:cellphone
+                icon_color: >
+                  {% if is_state('device_tracker.private_ble_device_e35b98',
+                  'home') %}
+                    green
+                  {% else %}
+                    gray
+                  {% endif %}
+                layout: horizontal
+                tap_action:
+                  action: more-info
+                card_mod:
+                  style: |
+                    ha-card {
+                      border: none;
+                      box-shadow: none;
+                      background: none;
+                    }
+              - type: custom:mushroom-template-card
+                entity: device_tracker.private_ble_device_3b7ecc
+                primary: iPad
+                secondary: >
+                  {% if is_state('device_tracker.private_ble_device_3b7ecc',
+                  'home') %}
+                    Home
+                  {% else %}
+                    Away
+                  {% endif %}
+                icon: mdi:tablet
+                icon_color: >
+                  {% if is_state('device_tracker.private_ble_device_3b7ecc',
+                  'home') %}
+                    green
+                  {% else %}
+                    gray
+                  {% endif %}
+                layout: horizontal
+                tap_action:
+                  action: more-info
+                card_mod:
+                  style: |
+                    ha-card {
+                      border: none;
+                      box-shadow: none;
+                      background: none;
+                    }
+            columns: 1
+            title: Devices
+            grid_options:
+              columns: 6
+              rows: auto
+            view_layout:
+              grid-area: lights
+          - type: vertical-stack
+            cards:
+              - type: custom:swipe-card
+                parameters:
+                  centeredSlides: true
+                  slidesPerView: auto
+                  spaceBetween: 16
+                  initialSlide: 0
+                cards:
+                  - columns: 5
+                    type: grid
+                    cards:
+                      - type: custom:button-card
+                        icon: mdi:power
+                        aspect_ratio: 1/1
+                        tap_action:
+                          action: call-service
+                          service: scene.turn_on
+                          haptic: medium
+                          target:
+                            entity_id: scene.turn_off
+                        styles:
+                          card:
+                            - border-radius: 24px
+                          icon:
+                            - color: var(--white)
+                      - type: custom:button-card
+                        icon: mdi:weather-cloudy
+                        aspect_ratio: 1/1
+                        tap_action:
+                          action: call-service
+                          service: scene.turn_on
+                          haptic: medium
+                          target:
+                            entity_id: scene.daylight
+                        styles:
+                          card:
+                            - border-radius: 24px
+                          icon:
+                            - color: var(--black)
+                      - type: custom:button-card
+                        icon: mdi:weather-sunset-down
+                        aspect_ratio: 1/1
+                        tap_action:
+                          action: call-service
+                          service: scene.turn_on
+                          haptic: medium
+                          target:
+                            entity_id: scene.warm_evening
+                        styles:
+                          card:
+                            - border-radius: 24px
+                          icon:
+                            - color: var(--black)
+                      - type: custom:button-card
+                        icon: phu:scene-relax
+                        aspect_ratio: 1/1
+                        tap_action:
+                          action: call-service
+                          service: scene.turn_on
+                          haptic: medium
+                          target:
+                            entity_id: scene.relaxation
+                        styles:
+                          card:
+                            - border-radius: 24px
+                          icon:
+                            - color: var(--black)
+                  - columns: 5
+                    type: grid
+                    cards:
+                      - type: custom:button-card
+                        icon: phu:scene-relax
+                        aspect_ratio: 1/1
+                        tap_action:
+                          action: call-service
+                          service: scene.turn_on
+                          haptic: medium
+                          target:
+                            entity_id: scene.relaxation
+                        styles:
+                          card:
+                            - border-radius: 24px
+                          icon:
+                            - color: var(--black)
+                      - type: custom:button-card
+                        icon: mdi:city
+                        aspect_ratio: 1/1
+                        tap_action:
+                          action: call-service
+                          service: scene.turn_on
+                          haptic: medium
+                          target:
+                            entity_id: scene.night_city
+                        styles:
+                          card:
+                            - border-radius: 24px
+                          icon:
+                            - color: var(--black)
+                      - type: custom:button-card
+                        icon: mdi:weather-night
+                        aspect_ratio: 1/1
+                        tap_action:
+                          action: call-service
+                          service: scene.turn_on
+                          haptic: medium
+                          target:
+                            entity_id: scene.night_light
+                        styles:
+                          card:
+                            - border-radius: 24px
+                          icon:
+                            - color: var(--white)
+                  - columns: 5
+                    type: grid
+                    cards:
+                      - type: custom:button-card
+                        icon: mdi:palette
+                        aspect_ratio: 1/1
+                        tap_action:
+                          action: call-service
+                          service: scene.turn_on
+                          haptic: medium
+                          target:
+                            entity_id: scene.color_flow
+                        styles:
+                          card:
+                            - border-radius: 24px
+                          icon:
+                            - color: var(--black)
+                      - type: custom:button-card
+                        icon: mdi:lightbulb
+                        aspect_ratio: 1/1
+                        tap_action:
+                          action: call-service
+                          service: scene.turn_on
+                          haptic: medium
+                          target:
+                            entity_id: scene.energize
+                        styles:
+                          card:
+                            - border-radius: 24px
+                          icon:
+                            - color: var(--black)
+            title: Scenes
+      - type: grid
+        cards:
+          - type: custom:gap-card
+            height: 115
+          - square: false
+            type: grid
+            cards:
+              - type: custom:button-card
+                name: String Lights
+                entity: light.smart_light_rgbcw_3
+                icon: phu:floor-lamp
+                size: 40%
+                show_state: true
+                aspect_ratio: 1/1
+                double_tap_action:
+                  action: more-info
+                styles:
+                  name:
+                    - font-size: 12px
+                    - padding-bottom: 3px !important
+                  state:
+                    - font-size: 18px
+                    - padding-bottom: 8px !important
+                state:
+                  - value: 'on'
+                    styles:
+                      card:
+                        - background-color: var(--primary-text-color)
+                      name:
+                        - color: '#263238'
+                      state:
+                        - color: '#263238'
+                      icon:
+                        - color: |
+                            [[[
+                              if (entity.attributes.rgb_color) {
+                                return `rgb(${entity.attributes.rgb_color.join(',')})`;
+                              }
+                              return 'black';
+                            ]]]
+              - type: custom:button-card
+                icon: phu:ikea-paparlamp
+                name: Ikea Lamp
+                size: 40%
+                show_state: true
+                aspect_ratio: 1/1
+                double_tap_action:
+                  action: more-info
+                entity: light.smart_light_rgbcw_2_2
+                styles:
+                  icon:
+                    - color: |
+                        [[[
+                          if (entity.state == 'on' && entity.attributes.rgb_color) {
+                            return `rgb(${entity.attributes.rgb_color.join(',')})`;
+                          }
+                          return 'var(--paper-item-icon-color)';
+                        ]]]
+                  name:
+                    - font-size: 12px
+                    - padding-bottom: 3px !important;
+                  state:
+                    - font-size:18px
+                    - padding-bottom: 8px !important;
+                state:
+                  - value: 'on'
+                    styles:
+                      card:
+                        - background-color: var(--primary-text-color)
+                      name:
+                        - color: '#263238'
+                      state:
+                        - color: '#263238'
+                      icon:
+                        - color: |
+                            [[[
+                              if (entity.attributes.rgb_color) {
+                                return `rgb(${entity.attributes.rgb_color.join(',')})`;
+                              }
+                              return 'black';
+                            ]]]
+              - type: custom:button-card
+                entity: light.rgb_strip_2
+                name: RGB Lights
+                icon: mdi:led-strip-variant
+                size: 40%
+                show_state: true
+                aspect_ratio: 1/1
+                double_tap_action:
+                  action: more-info
+                styles:
+                  icon:
+                    - color: |
+                        [[[
+                          if (entity.state == 'on' && entity.attributes.rgb_color) {
+                            return `rgb(${entity.attributes.rgb_color.join(',')})`;
+                          }
+                          return 'var(--paper-item-icon-color)';
+                        ]]]
+                  name:
+                    - font-size: 12px
+                    - padding-bottom: 3px !important;
+                  state:
+                    - font-size:18px
+                    - padding-bottom: 8px !important;
+                state:
+                  - value: 'on'
+                    styles:
+                      card:
+                        - background-color: var(--primary-text-color)
+                      name:
+                        - color: '#263238'
+                      state:
+                        - color: '#263238'
+                      icon:
+                        - color: |
+                            [[[
+                              if (entity.attributes.rgb_color) {
+                                return `rgb(${entity.attributes.rgb_color.join(',')})`;
+                              }
+                              return 'black';
+                            ]]]
+            columns: 3
+            title: Lights
+            view_layout:
+              grid-area: lights
+          - square: false
+            type: grid
+            cards:
+              - type: custom:button-card
+                entity: sensor.40_b7_fc_18_ba_42_ba42_temperature
+                name: Temperature
+                icon: mdi:thermometer
+                size: 30%
+                show_state: true
+                aspect_ratio: 1/1
+                double_tap_action:
+                  action: more-info
+                styles:
+                  name:
+                    - font-size: 12px
+                    - padding-bottom: 3px !important;
+                  state:
+                    - font-size:18px
+                    - padding-bottom: 8px !important;
+              - type: custom:button-card
+                entity: sensor.40_b7_fc_18_ba_42_ba42_humidity
+                name: Humidity
+                icon: mdi:water-percent
+                size: 30%
+                show_state: true
+                aspect_ratio: 1/1
+                tap_action:
+                  action: more-info
+                styles:
+                  name:
+                    - font-size: 12px
+                    - padding-bottom: 3px !important;
+                  state:
+                    - font-size:18px
+                    - padding-bottom: 8px !important;
+              - type: conditional
+                conditions:
+                  - condition: numeric_state
+                    entity: sensor.40_b7_fc_18_ba_42_ba42_battery
+                    below: 10
+                card:
+                  type: custom:button-card
+                  entity: sensor.40_b7_fc_18_ba_42_ba42_battery
+                  name: Low Battery
+                  icon: mdi:battery-alert-variant-outline
+                  size: 30%
+                  show_state: true
+                  aspect_ratio: 1/1
+                  styles:
+                    card:
+                      - border: 1px solid var(--error-color, red)
+                    icon:
+                      - color: var(--error-color, red)
+                    name:
+                      - font-size: 12px
+                      - padding-bottom: 3px !important
+                    state:
+                      - font-size: 18px
+                      - padding-bottom: 8px !important
+              - type: custom:button-card
+                entity: sensor.human_presence_sensor_illuminance
+                name: Ambient Light
+                icon: mdi:brightness-5
+                size: 30%
+                show_state: true
+                aspect_ratio: 1/1
+                styles:
+                  name:
+                    - font-size: 12px
+                    - padding-bottom: 3px !important;
+                  state:
+                    - font-size:18px
+                    - padding-bottom: 8px !important;
+            title: Climate
+            columns: 3
+            view_layout:
+              grid-area: climate
+          - square: true
+            type: grid
+            cards:
+              - type: custom:button-card
+                entity: binary_sensor.human_presence_sensor_motion
+                name: Motion Sensor
+                icon: phu:wall-spot
+                state_display: null
+                color_type: icon
+                size: 40%
+                show_state: true
+                aspect_ratio: 1/1
+                double_tap_action:
+                  action: more-info
+                styles:
+                  name:
+                    - font-size: 12px
+                    - padding-bottom: 3px !important;
+                  state:
+                    - font-size: 18px
+                    - padding-bottom: 8px !important;
+                  icon:
+                    - color: '#8391B2'
+              - type: custom:button-card
+                entity: binary_sensor.door_sensor_alarm_door
+                name: Door
+                icon: mdi:door
+                state:
+                  - value: 'on'
+                    icon: mdi:door-open
+                    styles:
+                      icon:
+                        - color: '#FF5449'
+                state_display: null
+                size: 40%
+                show_state: true
+                aspect_ratio: 1/1
+                double_tap_action:
+                  action: more-info
+                styles:
+                  name:
+                    - font-size: 12px
+                    - padding-bottom: 3px !important;
+                  state:
+                    - font-size: 18px
+                    - padding-bottom: 8px !important;
+            columns: 3
+            title: Security
+            view_layout:
+              grid-area: security
+          - type: custom:navbar-card
+            routes:
+              - url: /dashboard-mobile/Home
+                icon: mdi:home
+                label: Home
+              - url: /dashboard-mobile/System
+                icon: mdi:powershell
+                label: System
+              - url: /dashboard-mobile/Proxmox
+                icon: phu:proxmox
+                label: System
+              - url: /dashboard-mobile/Alexa
+                icon: phu:alexa-logo
+                label: Alexa
+      - type: grid
+        cards:
+          - type: custom:gap-card
+            height: 115
+          - square: false
+            type: grid
+            cards:
+              - type: custom:swipe-card
+                card_width: calc(100% - 48px)
+                parameters:
+                  spaceBetween: 10
+                  initialSlide: 0
+                  height: 120pt
+                  auto_height: false
+                cards:
+                  - type: custom:button-card
+                    entity: weather.pirateweather
+                    show_name: false
+                    show_icon: false
+                    custom_fields:
+                      temp: |
+                        [[[
+                          return states['weather.pirateweather'].attributes.temperature + '°'
+                        ]]]
+                      cond: |
+                        [[[
+                          var time = states["weather.pirateweather"].state
+                          let welcome = '';
+                          if (time == 'clear-night'){
+                            welcome = 'Clear';
+                          } else if (time == 'clear'){
+                            welcome = 'Sunny';
+                          } else if (time == 'partlycloudy'){
+                            welcome = 'Partly Cloudy';
+                          } else {
+                            welcome = states["weather.pirateweather"].state;
+                          }
+                          return welcome;
+                        ]]]
+                      icon: |
+                        [[[
+                          var weather = states["weather.pirateweather"].state
+                          let welcome = '';
+                          if (states['weather.pirateweather'].state == 'partlycloudy' && states['sun.sun'].state == 'below_horizon') {
+                            return '<img src = "/local/weather_icons/partly-cloudy-night.svg" width="90" height="90" />'
+                          } else {
+                            return '<img src = "/local/weather_icons/' + weather + '.svg" width="90" height="90" />'
+                          }
+                          return welcome;
+                        ]]] 
+                      icon2: |
+                        [[[
+                          var time = states["weather.pirateweather"].attributes.temperature
+                          let welcome = '';
+                          if (time <= 28){
+                            welcome = '<ha-icon icon="mdi:water-outline" style="width:26px; height: 26px;"> </ha-icon>'
+                          } else {
+                            welcome = '<ha-icon icon="mdi:water-outline" style="width:26px; height: 26px;"> </ha-icon>'
+                          }
+                          return welcome;
+                        ]]]
+                      prec: |
+                        [[[
+                          return states["weather.pirateweather"].attributes.humidity + '%'
+                        ]]]
+                      icon3: |
+                        [[[
+                          return '<ha-icon icon="mdi:weather-windy" style="width:26px; height: 26px;"> </ha-icon>'
+                        ]]]
+                      wind: |
+                        [[[
+                          let myNumber = states["weather.pirateweather"].attributes.wind_speed;
+                          let roundedNumber = `${Math.round(myNumber)} km/h`;
+                          return roundedNumber;
+                        ]]]
+                    styles:
+                      grid:
+                        - grid-template-rows: 33% auto% 33%
+                        - grid-template-columns: 50% 25% 25%
+                        - grid-template-areas: |
+                            "icon icon2 icon3"
+                            "temp prec wind"
+                            "cond . ."
+                      card:
+                        - height: 120pt !important
+                      custom_fields:
+                        icon:
+                          - margin-top: 3%
+                        temp:
+                          - font-size: 22pt
+                          - font-weight: 700
+                        cond:
+                          - font-size: 10pt
+                          - margin-bottom: 3%
+                          - margin-left: '-3%'
+                          - text-transform: capitalize
+                        icon2:
+                          - margin-left: '-35%'
+                          - margin-top: 30%
+                        prec:
+                          - margin-left: '-34%'
+                        icon3:
+                          - margin-left: '-35%'
+                          - margin-top: 30%
+                        wind:
+                          - margin-left: '-34%'
+              - type: custom:swipe-card
+                card_width: calc(100% - 48px)
+                parameters:
+                  spaceBetween: 16
+                  initialSlide: 0
+                cards:
+                  - type: sensor
+                    entity: sensor.pirateweather_apparent_temperature
+                    hours_to_show: 24
+                    detail: 1
+                    graph: line
+                    name: Feels Like
+                    icon: none
+                    card_mod:
+                      style: |
+                        ha-card {
+                          height: 120pt !important;    # Force height with card-mod
+                        }
+                  - type: sensor
+                    entity: sensor.pirateweather_wind_gust
+                    hours_to_show: 24
+                    detail: 1
+                    graph: line
+                    name: Wind Gust
+                    icon: none
+                    card_mod:
+                      style: |
+                        ha-card {
+                          height: 120pt !important;    # Force height with card-mod
+                        }
+            columns: 2
+            title: Weather
+            view_layout:
+              grid-area: lights
+          - square: false
+            type: grid
+            cards:
+              - type: custom:timeflow-card
+                title: Alexa
+                timer_entity: sensor.rishibs_echo_dot_next_timer
+                show_seconds: true
+                show_minutes: true
+                expired_text: No timers
+                expired_animation: false
+                background_color: rgba(69, 70, 68, 0.4)
+                progress_color: rgba(69, 70, 68, 0.4)
+                card_mod:
+                  style: |
+                    .card-content {
+                      flex-direction: row !important;
+                      align-items: center !important;
+                      justify-content: space-between !important;
+                    }
+                    .header {
+                      margin-bottom: 0 !important;
+                    }
+                    .content {
+                      margin-top: 0 !important;
+                    }
+                    ha-card {
+                      border-radius: 28px !important;
+                      box-shadow: none !important;
+                      border: none !important;
+                     }
+              - type: custom:timeflow-card
+                timer_entity: timer.tea
+                show_seconds: true
+                show_minutes: true
+                progress_color: '#88B596'
+                background_color: rgba(69, 70, 68, 0.4)
+                card_mod:
+                  style: |
+                    .card-content {
+                      flex-direction: row !important;
+                      align-items: center !important;
+                      justify-content: space-between !important;
+                    }
+                    .header {
+                      margin-bottom: 0 !important;
+                    }
+                    .content {
+                      margin-top: 0 !important;
+                    }
+                    ha-card {
+                      border-radius: 28px !important;
+                      box-shadow: none !important;
+                      border: none !important;
+                     }
+                grid_options:
+                  columns: 8
+            columns: 2
+            title: Timers
+            view_layout:
+              grid-area: lights
+          - square: false
+            type: grid
+            cards:
+              - type: custom:timeflow-card
+                title: >-
+                  {{ ' Sunrise' if states('sun.sun') == 'below_horizon' else '
+                  Sunset' }}
+                target_date: >-
+                  {{ states('sensor.sun_next_rising') if states('sun.sun') ==
+                  'below_horizon' else states('sensor.sun_next_setting') }}
+                creation_date: |-
+                  {% if states('sun.sun') == 'below_horizon' %}
+                    {{ (states('sensor.sun_next_setting') | as_datetime).replace(day=(states('sensor.sun_next_setting') | as_datetime).day - 1).isoformat() }}
+                  {% else %}
+                    {{ (states('sensor.sun_next_rising') | as_datetime).replace(day=(states('sensor.sun_next_rising') | as_datetime).day - 1).isoformat() }}
+                  {% endif %}
+                show_days: false
+                show_hours: true
+                show_minutes: false
+                show_seconds: false
+                background_color: rgba(66, 68, 68, 0.5)
+                color: '#ffffff'
+                progress_color: '#d2e8d5'
+                card_mod:
+                  style:
+                    .: |
+                      ha-card {
+                        border-radius: 28px !important;
+                        box-shadow: none !important;
+                        border: none !important;
+                       }
+                      ha-card .title {
+                        font-size: 1.4rem !important;
+                      }
+                      ha-card .subtitle {
+                        font-size: 1.3rem !important;
+                      }
+                      ha-card .subtitle {
+                        color: #888888; /* A light gray */
+                      }
+                      .card-content {
+                        flex-direction: row !important;
+                        align-items: center !important;
+                        justify-content: space-between !important;
+                      }
+                  tap_action: null
+                  action: more-info
+                  entity: sun.sun
+              - type: custom:timeflow-card
+                title: Backup
+                target_date: sensor.backup_next_scheduled_automatic_backup
+                color: '#ffffff'
+                progress_color: '#8391B2'
+                show_seconds: false
+                show_minutes: false
+                show_hours: true
+                show_days: false
+                show_months: false
+                creation_date: sensor.backup_last_successful_automatic_backup
+                background_color: rgba(69, 70, 68, 0.4)
+                card_mod:
+                  style:
+                    .: |
+                      ha-card {
+                        border-radius: 28px !important;
+                        box-shadow: none !important;
+                        border: none !important;
+                       }
+                      ha-card .title {
+                        font-size: 1.4rem !important;
+                      }
+                      ha-card .subtitle {
+                        font-size: 1.3rem !important;
+                      }
+                      ha-card .subtitle {
+                        color: #888888; /* A light gray */
+                      }
+                      .card-content {
+                        flex-direction: row !important;
+                        align-items: center !important;
+                        
+                tap_action:
+                  action: more-info
+                  entity: sensor.backup_last_successful_automatic_backup
+            columns: 2
+            title: Timeflows
+            view_layout:
+              grid-area: lights
+      - type: grid
+        cards: []
+      - type: grid
+        cards: []
+      - type: grid
+        cards: []
+    theme: Material You Gradient
+    badges: []
+    background:
+      opacity: 100
+      alignment: center
+      size: cover
+      repeat: no-repeat
+      attachment: scroll
+    header:
+      layout: responsive
+      badges_position: top
+      badges_wrap: scroll
+    cards: []
+    subview: false
+    icon: mdi:home
+  - type: sections
+    max_columns: 3
+    dense_section_placement: false
+    path: System
+    title: System
+    sections:
+      - type: grid
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: markdown
+                content: |
+                  {{ now().strftime('%I:%M %p') }}
+                card_mod:
+                  style: |
+                    ha-card {
+                      text-align: left;
+                      font-size: 60px;
+                      font-weight: 680;
+                      margin-top: -20px;
+                      background: none;
+                      border: none;
+                      box-shadow: none;
+                    }
+              - type: markdown
+                content: |
+                  {{ now().strftime('%A, %B %-d') }}
+                card_mod:
+                  style: |
+                    ha-card {
+                      text-align: left;
+                      font-size: 15px;
+                      font-weight: 400;
+                      margin-top: -56px;
+                      background: none;
+                      border: none;
+                      box-shadow: none;
+                    }
+          - square: false
+            type: grid
+            cards:
+              - type: custom:vertical-stack-in-card
+                cards:
+                  - type: custom:button-card
+                    template: entity
+                    entity: sensor.system_monitor_processor_use
+                    name: CPU Usage
+                    styles:
+                      card:
+                        - height: 100px
+                        - box-shadow: none
+                        - border: none
+                        - background: none
+                  - type: custom:mini-graph-card
+                    entities:
+                      - entity: sensor.system_monitor_processor_use
+                    show:
+                      name: false
+                      icon: false
+                      state: false
+                    line_width: 3
+                    hours_to_show: 2
+                    points_per_hour: 10
+                    line_color: rgb(0,200,0)
+                    animate: true
+              - type: custom:vertical-stack-in-card
+                cards:
+                  - type: custom:button-card
+                    template: entity
+                    entity: sensor.system_monitor_processor_temperature
+                    name: Temperature
+                    styles:
+                      card:
+                        - box-shadow: none
+                        - border: none
+                        - background: none
+                  - type: custom:mini-graph-card
+                    entities:
+                      - entity: sensor.system_monitor_processor_temperature
+                    show:
+                      name: false
+                      icon: false
+                      state: false
+                    line_width: 3
+                    hours_to_show: 2
+                    points_per_hour: 10
+                    line_color: rgb(0,125,255)
+                    animate: true
+              - type: custom:vertical-stack-in-card
+                cards:
+                  - type: custom:button-card
+                    template: entity
+                    entity: sensor.system_monitor_memory_usage
+                    state_display: |
+                      [[[
+                        return states['sensor.system_monitor_memory_usage'].state + '%'
+                      ]]]
+                    name: Memory Usage
+                    styles:
+                      card:
+                        - box-shadow: none
+                        - border: none
+                        - background: none
+                  - type: custom:mini-graph-card
+                    entities:
+                      - entity: sensor.system_monitor_memory_usage
+                    show:
+                      name: false
+                      icon: false
+                      state: false
+                    line_width: 3
+                    hours_to_show: 2
+                    points_per_hour: 10
+                    line_color: rgb(0,200,0)
+                    animate: true
+                    style: ''
+              - type: custom:vertical-stack-in-card
+                cards:
+                  - type: custom:button-card
+                    template: entity
+                    entity: sensor.system_monitor_disk_usage
+                    state_display: |
+                      [[[
+                        return states['sensor.home_assistant_host_disk_used'].state + ' GB'
+                      ]]]
+                    name: Storage Used
+                    icon: mdi:harddisk
+                    styles:
+                      card:
+                        - box-shadow: none
+                        - border: none
+                        - background: none
+                  - type: custom:mini-graph-card
+                    entities:
+                      - entity: sensor.system_monitor_disk_usage
+                        color: rgb(244,210,88)
+                    show:
+                      name: false
+                      icon: false
+                      state: false
+                      graph: bar
+                    hours_to_show: 2
+                    points_per_hour: 5
+                    lower_bound: 1
+                    upper_bound: 32
+                    animate: true
+            title: System
+            columns: 2
+          - type: custom:navbar-card
+            routes:
+              - url: /dashboard-mobile/Home
+                icon: mdi:home
+                label: Home
+              - url: /dashboard-mobile/System
+                icon: mdi:powershell
+                label: System
+              - url: /dashboard-mobile/Proxmox
+                icon: phu:proxmox
+                label: System
+              - url: /dashboard-mobile/Alexa
+                icon: phu:alexa-logo
+                label: Alexa
+      - type: grid
+        cards:
+          - type: custom:gap-card
+            height: 115
+          - square: false
+            type: grid
+            cards:
+              - type: entities
+                entities:
+                  - entity: sensor.system_monitor_ipv4_address_enp1s0
+                    name: Current IP Address
+                    secondary_info: none
+                  - entity: sensor.system_monitor_packets_in_enp1s0
+                    name: Packets In
+                  - entity: sensor.system_monitor_packets_out_enp1s0
+                    name: Packets Out
+                    secondary_info: none
+                  - entity: sensor.system_monitor_last_boot
+                    name: Last Boot
+            title: Network
+            columns: 1
+      - type: grid
+        cards:
+          - type: custom:gap-card
+            height: 110
+          - type: vertical-stack
+            title: System Options
+            cards:
+              - type: custom:button-card
+                name: Restart Home Assistant
+                show_icon: false
+                styles:
+                  card:
+                    - background: none
+                    - border-radius: 24px
+                    - margin-top: 8px
+                    - padding: 18px 0px
+                    - font-size: 16px
+                    - border: 1px solid white
+                tap_action:
+                  action: call-service
+                  service: homeassistant.restart
+              - type: custom:button-card
+                name: Restart System
+                show_icon: false
+                styles:
+                  card:
+                    - background: none
+                    - border-radius: 24px
+                    - margin-top: 8px
+                    - padding: 18px 0px
+                    - font-size: 16px
+                    - border: 1px solid white
+                tap_action:
+                  action: call-service
+                  service: hassio.host_reboot
+              - type: custom:button-card
+                name: Power Off System
+                show_icon: false
+                styles:
+                  card:
+                    - background: none
+                    - border-radius: 24px
+                    - color: var(--contrast20)
+                    - margin-top: 8px
+                    - padding: 18px 0px
+                    - font-size: 16px
+                    - border: 1px solid red
+                tap_action:
+                  action: call-service
+                  service: hassio.host_shutdown
+      - type: grid
+        cards: []
+    theme: Material You Gradient
+    badges: []
+    background:
+      opacity: 100
+      alignment: center
+      size: cover
+      repeat: no-repeat
+      attachment: scroll
+    header:
+      layout: responsive
+      badges_position: top
+      badges_wrap: scroll
+    cards: []
+    subview: false
+    icon: mdi:account-group
+  - type: sections
+    max_columns: 3
+    title: Proxmox
+    path: Proxmox
+    icon: phu:proxmox
+    sections:
+      - type: grid
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: markdown
+                content: |
+                  {{ now().strftime('%I:%M %p') }}
+                card_mod:
+                  style: |
+                    ha-card {
+                      text-align: left;
+                      font-size: 60px;
+                      font-weight: 680;
+                      margin-top: -20px;
+                      background: none;
+                      border: none;
+                      box-shadow: none;
+                    }
+              - type: markdown
+                content: |
+                  {{ now().strftime('%A, %B %-d') }}
+                card_mod:
+                  style: |
+                    ha-card {
+                      text-align: left;
+                      font-size: 15px;
+                      font-weight: 400;
+                      margin-top: -56px;
+                      background: none;
+                      border: none;
+                      box-shadow: none;
+                    }
+          - type: custom:navbar-card
+            routes:
+              - url: /dashboard-mobile/Home
+                icon: mdi:home
+                label: Home
+              - url: /dashboard-mobile/System
+                icon: mdi:powershell
+                label: System
+              - url: /dashboard-mobile/Proxmox
+                icon: phu:proxmox
+                label: System
+              - url: /dashboard-mobile/Alexa
+                icon: phu:alexa-logo
+                label: Alexa
+      - type: grid
+        cards: []
+      - type: grid
+        cards: []
+      - type: grid
+        cards: []
+    theme: Material You Gradient
+    cards: []
+  - type: sections
+    max_columns: 3
+    title: Alexa
+    path: Alexa
+    sections:
+      - type: grid
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: markdown
+                content: |
+                  {{ now().strftime('%I:%M %p') }}
+                card_mod:
+                  style: |
+                    ha-card {
+                      text-align: left;
+                      font-size: 60px;
+                      font-weight: 680;
+                      margin-top: -20px;
+                      background: none;
+                      border: none;
+                      box-shadow: none;
+                    }
+              - type: markdown
+                content: |
+                  {{ now().strftime('%A, %B %-d') }}
+                card_mod:
+                  style: |
+                    ha-card {
+                      text-align: left;
+                      font-size: 15px;
+                      font-weight: 400;
+                      margin-top: -56px;
+                      background: none;
+                      border: none;
+                      box-shadow: none;
+                    }
+          - type: custom:button-card
+            name: Echo Dot
+            custom_fields:
+              badge:
+                card:
+                  type: custom:button-card
+                  name: Volume
+                  label: |
+                    [[[
+                      let number = states['media_player.rishibs_echo_dot'].attributes.volume_level;
+                      let result = `${number * 100}`;
+                      return result + '%';
+                    ]]]
+                  show_label: true
+                  show_icon: false
+                  styles:
+                    grid:
+                      - grid-template-areas: '"n gutter l"'
+                      - grid-template-columns: min-content 5px min-content
+                      - grid-template-rows: min-content
+                    card:
+                      - display: |
+                          [[[
+                            var time = states["media_player.rishibs_echo_dot"].state
+                            let welcome = '';
+                            if (time != 'off'){
+                              welcome = 'block'
+                            } else {
+                              welcome = 'none'
+                            }
+                            return welcome;
+                          ]]]
+                      - padding: 6px 10px
+                      - font-size: 12px
+                      - line-height: 18px
+                      - font-weight: 500
+                    name:
+                      - color: white
+                    label:
+                      - color: white
+            styles:
+              grid:
+                - grid-template-areas: '"n" "badge"'
+              card:
+                - background: none
+                - padding: 50px 0
+              name:
+                - font-size: 32px
+                - color: white
+                - margin-top: '-5%'
+              custom_fields:
+                badge:
+                  - margin: 16px auto 0 auto
+                  - background: none
+            card_mod:
+              style:
+                .: |
+                  ha-card {
+                    border-radius: 28px !important;
+                    box-shadow: none !important;
+                    border: none !important;
+                   }
+          - type: conditional
+            conditions:
+              - condition: state
+                entity: media_player.rishibs_echo_dot
+                state_not: 'off'
+            card:
+              square: false
+              type: grid
+              cards:
+                - type: custom:button-card
+                  icon: mdi:skip-previous
+                  name: Previous track
+                  tap_action:
+                    action: call-service
+                    haptic: medium
+                    service: media_player.media_previous_track
+                    target:
+                      entity_id:
+                        - media_player.rishibs_echo_dot
+                    data: {}
+                  styles:
+                    icon:
+                      - width: 24px
+                    img_cell:
+                      - justify-content: flex-start
+                      - margin-top: 0px
+                    name:
+                      - justify-self: start
+                      - font-size: 14px
+                      - margin-top: 0px
+                      - color: var(--contrast20)
+                    card:
+                      - height: 84px
+                      - border-radius: 24px
+                      - padding: 8px 0px 16px 20px
+                    grid:
+                      - grid-template-areas: '"i" "n"'
+                - type: custom:button-card
+                  icon: mdi:skip-next
+                  name: Next track
+                  tap_action:
+                    action: call-service
+                    haptic: medium
+                    service: media_player.media_next_track
+                    target:
+                      entity_id:
+                        - media_player.rishibs_echo_dot
+                    data: {}
+                  styles:
+                    icon:
+                      - width: 24px
+                    img_cell:
+                      - justify-content: flex-start
+                      - margin-top: 0px
+                    name:
+                      - justify-self: start
+                      - font-size: 14px
+                      - margin-top: 0px
+                      - color: var(--contrast20)
+                    card:
+                      - height: 84px
+                      - border-radius: 24px
+                      - padding: 8px 0px 16px 20px
+                    grid:
+                      - grid-template-areas: '"i" "n"'
+                - type: custom:button-card
+                  icon: mdi:play
+                  entity: media_player.rishibs_echo_dot
+                  name: Play
+                  tap_action:
+                    action: call-service
+                    haptic: medium
+                    service: media_player.media_play_pause
+                    target:
+                      entity_id: media_player.rishibs_echo_dot
+                    data: {}
+                  styles:
+                    icon:
+                      - width: 24px
+                      - margin-left: '-2%'
+                      - color: null
+                    img_cell:
+                      - justify-content: flex-start
+                      - margin-top: 0px
+                    name:
+                      - justify-self: start
+                      - font-size: 14px
+                      - margin-top: 0px
+                    card:
+                      - height: 184px
+                      - border-radius: 24px
+                      - padding: 108px 0px 16px 20px
+                    grid:
+                      - grid-template-areas: '"i" "n"'
+                  state:
+                    - value: playing
+                      name: Pause
+                      icon: mdi:pause
+                      styles:
+                        card:
+                          - background: rgb(101,136,255)
+                        icon:
+                          - color: white
+                        name:
+                          - color: white
+                - type: grid
+                  columns: 1
+                  square: false
+                  cards:
+                    - type: custom:button-card
+                      icon: mdi:volume-plus
+                      name: Volume up
+                      tap_action:
+                        action: call-service
+                        haptic: medium
+                        service: media_player.volume_up
+                        service_data:
+                          entity_id: media_player.rishibs_echo_dot
+                      styles:
+                        icon:
+                          - width: 24px
+                        img_cell:
+                          - justify-content: flex-start
+                          - margin-top: 0px
+                        name:
+                          - justify-self: start
+                          - font-size: 14px
+                          - margin-top: 0px
+                          - color: var(--contrast20)
+                        card:
+                          - height: 84px
+                          - border-radius: 24px
+                          - padding: 8px 0px 16px 20px
+                        grid:
+                          - grid-template-areas: '"i" "n"'
+                    - type: custom:button-card
+                      icon: mdi:volume-minus
+                      name: Volume down
+                      tap_action:
+                        action: call-service
+                        haptic: medium
+                        service: media_player.volume_down
+                        service_data:
+                          entity_id: media_player.rishibs_echo_dot
+                      styles:
+                        icon:
+                          - width: 24px
+                          - color: var(--contrast20)
+                        img_cell:
+                          - justify-content: flex-start
+                          - margin-top: 0px
+                        name:
+                          - justify-self: start
+                          - font-size: 14px
+                          - margin-top: 0px
+                          - color: var(--contrast20)
+                        card:
+                          - height: 84px
+                          - border-radius: 24px
+                          - padding: 8px 0px 16px 20px
+                        grid:
+                          - grid-template-areas: '"i" "n"'
+                - type: custom:button-card
+                  icon: mdi:stop
+                  name: Stop
+                  tap_action:
+                    action: call-service
+                    haptic: medium
+                    service: media_player.media_stop
+                    target:
+                      entity_id: media_player.rishibs_echo_dot
+                    data: {}
+                  styles:
+                    icon:
+                      - width: 24px
+                    img_cell:
+                      - justify-content: flex-start
+                      - margin-top: 0px
+                    name:
+                      - justify-self: start
+                      - font-size: 14px
+                      - margin-top: 0px
+                      - color: var(--contrast20)
+                    card:
+                      - height: 84px
+                      - border-radius: 24px
+                      - padding: 8px 0px 16px 20px
+                    grid:
+                      - grid-template-areas: '"i" "n"'
+                - type: custom:button-card
+                  icon: mdi:power
+                  name: Power Off
+                  tap_action:
+                    action: call-service
+                    haptic: medium
+                    service: media_player.turn_off
+                    target:
+                      entity_id: media_player.rishibs_echo_dot
+                    data: {}
+                  styles:
+                    icon:
+                      - width: 24px
+                    img_cell:
+                      - justify-content: flex-start
+                      - margin-top: 0px
+                    name:
+                      - justify-self: start
+                      - font-size: 14px
+                      - margin-top: 0px
+                      - color: var(--contrast20)
+                    card:
+                      - height: 84px
+                      - border-radius: 24px
+                      - padding: 8px 0px 16px 20px
+                    grid:
+                      - grid-template-areas: '"i" "n"'
+              columns: 2
+          - type: custom:navbar-card
+            routes:
+              - url: /dashboard-mobile/Home
+                icon: mdi:home
+                label: Home
+              - url: /dashboard-mobile/System
+                icon: mdi:powershell
+                label: System
+              - url: /dashboard-mobile/Proxmox
+                icon: phu:proxmox
+                label: System
+              - url: /dashboard-mobile/Alexa
+                icon: phu:alexa-logo
+                label: Alexa
+          - type: vertical-stack
+            cards:
+              - square: false
+                type: grid
+                cards:
+                  - type: custom:button-card
+                    entity: sensor.rishibs_echo_dot_next_alarm
+                    show_state: true
+                    show_name: false
+                    styles:
+                      grid:
+                        - grid-template-areas: '"s eenheid" "l l"'
+                        - grid-template-columns: min-content min-content
+                      state:
+                        - font-size: 32px
+                        - color: var(--contrast20)
+                        - margin-top: '-35%'
+                      card:
+                        - height: 80px
+                        - border-radius: 24px
+                        - padding: 30px 0 6px 16px
+                        - box-sizing: border-box
+                        - background: var(--contrast2)
+                        - box-shadow: none
+                      label:
+                        - justify-self: start
+                        - font-size: 12px
+                        - color: var(--contrast20)
+                        - margin-top: '-30px'
+                      custom_fields:
+                        eenheid:
+                          - font-size: 12px
+                          - color: var(--contrast9)
+                          - margin-bottom: 6px
+                          - padding-left: 2px
+                    label: Wake Up Time
+                    show_label: true
+                    tap_action:
+                      action: more-info
+                    state:
+                      - value: null
+                  - type: custom:button-card
+                    entity: sensor.tomorrow_io_home_feels_like
+                    show_state: false
+                    show_name: true
+                    name: |
+                      [[[
+                        let myNumber = states["sensor.tomorrow_io_home_feels_like"].state;
+                          let roundedNumber = `${Math.round(myNumber)}°C`;
+                        return roundedNumber;
+                      ]]]
+                    styles:
+                      grid:
+                        - grid-template-areas: '"n eenheid" "l l"'
+                        - grid-template-columns: min-content min-content
+                      name:
+                        - font-size: 32px
+                        - color: var(--contrast20)
+                        - margin-top: '-62%'
+                      card:
+                        - height: 80px
+                        - border-radius: 24px
+                        - padding: 30px 0 6px 16px
+                        - box-sizing: border-box
+                        - background: var(--contrast2)
+                        - box-shadow: none
+                      label:
+                        - justify-self: start
+                        - font-size: 12px
+                        - color: var(--contrast20)
+                        - margin-top: '-30px'
+                    label: Feels Like
+                    show_label: true
+                    tap_action:
+                      action: none
+                  - type: custom:button-card
+                    entity: switch.rishibs_echo_dot_do_not_disturb_switch
+                    show_state: true
+                    show_name: false
+                    styles:
+                      grid:
+                        - grid-template-areas: '"s eenheid" "l l"'
+                        - grid-template-columns: min-content min-content
+                      state:
+                        - font-size: 32px
+                        - color: var(--contrast20)
+                        - margin-top: '-45%'
+                      card:
+                        - height: 80px
+                        - border-radius: 24px
+                        - padding: 30px 0 6px 16px
+                        - box-sizing: border-box
+                        - background: var(--contrast2)
+                        - box-shadow: none
+                      label:
+                        - justify-self: start
+                        - font-size: 12px
+                        - color: var(--contrast20)
+                        - margin-top: '-30px'
+                    label: Echo DND
+                    show_label: true
+                    tap_action:
+                      action: toggle
+                    state:
+                      - value: 'on'
+                        state_display: Active
+                        styles:
+                          state:
+                            - color: green
+                      - value: 'off'
+                        state_display: Disabled
+                        styles:
+                          state:
+                            - opacity: 50%
+                            - margin-top: '-30%'
+                            - margin-left: '-3%'
+                    confirmation:
+                      text: |
+                        [[[
+                          var time = states["switch.virtual_switch_1"].state
+                          let welcome = '';
+                          if (time == 'on'){
+                            welcome = 'This will disable all motion sensor automations.'
+                          } else {
+                            welcome = 'All motion sensor automations will be enabled.'
+                          }
+                          return welcome;
+                        ]]]
+                  - type: custom:button-card
+                    entity: sensor.rishibs_echo_dot_next_timer
+                    show_state: true
+                    show_name: false
+                    styles:
+                      grid:
+                        - grid-template-areas: '"s s" "l l"'
+                        - grid-template-columns: min-content min-content
+                      state:
+                        - font-size: 32px
+                        - justify-self: start
+                        - color: var(--contrast20)
+                        - margin-top: '-35%'
+                        - color: orange
+                      card:
+                        - height: 80px
+                        - border-radius: 24px
+                        - padding: 30px 0 6px 16px
+                        - box-sizing: border-box
+                        - background: var(--contrast2)
+                        - box-shadow: none
+                      label:
+                        - justify-self: start
+                        - font-size: 12px
+                        - color: var(--contrast20)
+                        - margin-top: '-30px'
+                    state:
+                      - value: idle
+                        styles:
+                          state:
+                            - color: null
+                            - opacity: 50%
+                    label: Echo next Timer
+                    show_label: true
+                    tap_action:
+                      action: more-info
+                columns: 2
+      - type: grid
+        cards: []
+      - type: grid
+        cards: []
+    theme: Material You Gradient
+    cards: []
+    icon: phu:alexa-logo
