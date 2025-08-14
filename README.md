@@ -46,3 +46,15 @@ This dashboard uses a variety of custom cards to achieve its look and functional
 * **`custom:navbar-card`**: A custom card for creating a navigation bar.
 * **`custom:vertical-stack-in-card`**: A custom card that stacks cards vertically within a single card. Used for system monitoring graphs.
 * **`custom:mini-graph-card`**: A custom card for creating compact graphs. Used for system monitoring.
+
+
+## ✨ Small self promotion : `custom:timeflow-card`
+
+If you like the dashboard please check out my card **`custom:timeflow-card`**. This card allows you to create beautiful, animated timers and countdownss.
+In this dashboard, `timeflow-card` is used to:
+
+  * **Track Alexa Timers**: Automatically picks up timers and displays it.
+  * **Countdown to Events**: Visualize the time remaining until sunrise, sunset, or your next backup using entities
+  * **Simple Timers**: Keep track of everyday timers, like for making tea.
+
+For more info, check out the [Timeflow-card](https://github.com/Rishi8078/TimeFlow-Card)
