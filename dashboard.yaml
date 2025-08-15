@@ -900,9 +900,6 @@ views:
               - url: /dashboard-mobile/Proxmox
                 icon: phu:proxmox
                 label: System
-              - url: /dashboard-mobile/Alexa
-                icon: phu:alexa-logo
-                label: Alexa
           - square: true
             type: grid
             cards:
@@ -1118,8 +1115,8 @@ views:
                 show_seconds: true
                 show_minutes: true
                 expired_text: No timers
-                expired_animation: false
                 background_color: rgba(69, 70, 68, 0.4)
+                expired_animation: false
                 progress_color: rgba(69, 70, 68, 0.4)
                 card_mod:
                   style: |
@@ -1143,8 +1140,8 @@ views:
                 timer_entity: timer.tea
                 show_seconds: true
                 show_minutes: true
-                progress_color: '#88B596'
                 background_color: rgba(69, 70, 68, 0.4)
+                progress_color: '#88B596'
                 card_mod:
                   style: |
                     .card-content {
@@ -1189,8 +1186,8 @@ views:
                 show_hours: true
                 show_minutes: false
                 show_seconds: false
-                background_color: rgba(66, 68, 68, 0.5)
                 color: '#ffffff'
+                background_color: rgba(69, 70, 68, 0.4)
                 progress_color: '#d2e8d5'
                 card_mod:
                   style:
@@ -1227,8 +1224,8 @@ views:
                 show_hours: true
                 show_days: false
                 show_months: false
-                creation_date: sensor.backup_last_successful_automatic_backup
                 background_color: rgba(69, 70, 68, 0.4)
+                creation_date: sensor.backup_last_successful_automatic_backup
                 card_mod:
                   style:
                     .: |
@@ -1272,12 +1269,13 @@ views:
       repeat: no-repeat
       attachment: scroll
     header:
-      layout: responsive
+      layout: center
       badges_position: top
-      badges_wrap: scroll
+      badges_wrap: wrap
     cards: []
     subview: false
     icon: mdi:home
+    top_margin: false
   - type: sections
     max_columns: 3
     dense_section_placement: false
@@ -1493,9 +1491,6 @@ views:
               - url: /dashboard-mobile/Proxmox
                 icon: phu:proxmox
                 label: System
-              - url: /dashboard-mobile/Alexa
-                icon: phu:alexa-logo
-                label: Alexa
       - type: grid
         cards:
           - type: custom:gap-card
@@ -1516,28 +1511,16 @@ views:
                 show_icon: true
                 tap_action:
                   action: call-service
-                  service: browser_mod.popup
-                  service_data:
-                    title: Confirmation
-                    content: |
-                      [[[ 
-                        return states['switch.linux_pc'].state === 'off'
+                  service: switch.toggle
+                  target:
+                    entity_id: switch.linux_pc
+                  confirmation:
+                    text: |
+                      [[[
+                        return entity.state === 'off'
                           ? 'Do you want to start Proxmox?'
                           : 'Do you want to stop Proxmox?';
                       ]]]
-                    right_button: 'Yes'
-                    right_button_action:
-                      service: switch.toggle
-                      data:
-                        entity_id: switch.linux_pc
-                    left_button: 'No'
-                    left_button_action: browser_mod.close_popup
-                    style:
-                      width: 400px
-                      height: 180px
-                      background: rgba(25, 35, 50, 0.9)
-                      backdrop-filter: blur(6px)
-                      border-radius: 20px
                 styles:
                   name:
                     - font-size: 12px
@@ -1552,7 +1535,7 @@ views:
                         - background-color: var(--primary-text-color)
                       name:
                         - color: '#263238'
-                      state:
+                      label:
                         - color: '#263238'
                       icon:
                         - color: |
@@ -1575,28 +1558,16 @@ views:
                 show_icon: true
                 tap_action:
                   action: call-service
-                  service: browser_mod.popup
-                  service_data:
-                    title: Confirmation
-                    content: |
-                      [[[ 
-                        return states['switch.10amp_smart_plug_socket_1'].state === 'off'
-                          ? 'Do you want to power up the Remote Server?'
-                          : 'Do you want to shut down the Remote Server?';
+                  service: switch.toggle
+                  target:
+                    entity_id: switch.10amp_smart_plug_socket_1
+                  confirmation:
+                    text: |
+                      [[[
+                        return entity.state === 'off'
+                          ? 'Do you want to start Remote Server?'
+                          : 'Do you want to stop Remote Server?';
                       ]]]
-                    right_button: 'Yes'
-                    right_button_action:
-                      service: switch.toggle
-                      data:
-                        entity_id: switch.10amp_smart_plug_socket_1
-                    left_button: 'No'
-                    left_button_action: browser_mod.close_popup
-                    style:
-                      width: 400px
-                      height: 180px
-                      background: rgba(25, 35, 50, 0.9)
-                      backdrop-filter: blur(6px)
-                      border-radius: 20px
                 styles:
                   name:
                     - font-size: 12px
@@ -1611,7 +1582,7 @@ views:
                         - background-color: var(--primary-text-color)
                       name:
                         - color: '#263238'
-                      state:
+                      label:
                         - color: '#263238'
                       icon:
                         - color: |
@@ -1634,28 +1605,16 @@ views:
                 show_icon: true
                 tap_action:
                   action: call-service
-                  service: browser_mod.popup
-                  service_data:
-                    title: Confirmation
-                    content: |
-                      [[[ 
-                        return states['switch.ubuntu_pc'].state === 'off'
-                          ? 'Do you want to launch Ubuntu PC?'
-                          : 'Do you want to power it down?';
+                  service: switch.toggle
+                  target:
+                    entity_id: switch.ubuntu_pc
+                  confirmation:
+                    text: |
+                      [[[
+                        return entity.state === 'off'
+                          ? 'Do you want to start Ubuntu PC?'
+                          : 'Do you want to stop Ubuntu PC?';
                       ]]]
-                    right_button: 'Yes'
-                    right_button_action:
-                      service: switch.toggle
-                      data:
-                        entity_id: switch.ubuntu_pc
-                    left_button: 'No'
-                    left_button_action: browser_mod.close_popup
-                    style:
-                      width: 400px
-                      height: 180px
-                      background: rgba(25, 35, 50, 0.9)
-                      backdrop-filter: blur(6px)
-                      border-radius: 20px
                 styles:
                   name:
                     - font-size: 12px
@@ -1670,7 +1629,7 @@ views:
                         - background-color: var(--primary-text-color)
                       name:
                         - color: '#263238'
-                      state:
+                      label:
                         - color: '#263238'
                       icon:
                         - color: |
@@ -1681,26 +1640,7 @@ views:
                               return 'black';
                             ]]]
             title: Servers
-      - type: grid
-        cards:
-          - type: custom:gap-card
-            height: 110
-          - square: false
-            type: grid
-            cards:
-              - type: entities
-                entities:
-                  - entity: sensor.system_monitor_last_boot
-                    name: Last Boot
-                  - entity: sensor.current_version
-                    name: Core version
-                  - entity: sensor.home_assistant_operating_system_version
-                    name: OS version
-                  - entity: sensor.pending_update_counter
-                    name: Updates Avialable
-                show_header_toggle: true
-            title: Home Assistant Core & Supervisor
-            columns: 1
+            columns: 3
           - square: false
             type: grid
             cards:
@@ -1726,6 +1666,38 @@ views:
                   method: state
                   reverse: true
             title: Updates
+            columns: 1
+      - type: grid
+        cards:
+          - type: custom:gap-card
+            height: 110
+          - square: false
+            type: grid
+            cards:
+              - type: entities
+                entities:
+                  - entity: sensor.system_monitor_last_boot
+                    name: Last Boot
+                  - entity: sensor.current_version
+                    name: Core version
+                  - entity: sensor.home_assistant_operating_system_version
+                    name: OS version
+                  - entity: sensor.pending_update_counter
+                    name: Updates Avialable
+                show_header_toggle: true
+            title: Home Assistant Core & Supervisor
+            columns: 1
+          - square: false
+            type: grid
+            cards:
+              - type: entities
+                entities:
+                  - sensor.issues
+                  - sensor.active_issues
+                  - sensor.ignored_issues
+                  - button.ignore_all_issues
+                  - button.unignore_all_issues
+            title: Spooky Issues
             columns: 1
       - type: grid
         cards: []
@@ -1795,516 +1767,11 @@ views:
               - url: /dashboard-mobile/Proxmox
                 icon: phu:proxmox
                 label: System
-              - url: /dashboard-mobile/Alexa
-                icon: phu:alexa-logo
-                label: Alexa
       - type: grid
         cards: []
       - type: grid
         cards: []
       - type: grid
         cards: []
-    theme: Material You Gradient
+    theme: Material You
     cards: []
-  - type: sections
-    max_columns: 3
-    title: Alexa
-    path: Alexa
-    sections:
-      - type: grid
-        cards:
-          - type: vertical-stack
-            cards:
-              - type: markdown
-                content: |
-                  {{ now().strftime('%I:%M %p') }}
-                card_mod:
-                  style: |
-                    ha-card {
-                      text-align: left;
-                      font-size: 60px;
-                      font-weight: 680;
-                      margin-top: -20px;
-                      background: none;
-                      border: none;
-                      box-shadow: none;
-                    }
-              - type: markdown
-                content: |
-                  {{ now().strftime('%A, %B %-d') }}
-                card_mod:
-                  style: |
-                    ha-card {
-                      text-align: left;
-                      font-size: 15px;
-                      font-weight: 400;
-                      margin-top: -56px;
-                      background: none;
-                      border: none;
-                      box-shadow: none;
-                    }
-          - type: custom:button-card
-            name: Echo Dot
-            custom_fields:
-              badge:
-                card:
-                  type: custom:button-card
-                  name: Volume
-                  label: |
-                    [[[
-                      let number = states['media_player.rishibs_echo_dot'].attributes.volume_level;
-                      let result = `${number * 100}`;
-                      return result + '%';
-                    ]]]
-                  show_label: true
-                  show_icon: false
-                  styles:
-                    grid:
-                      - grid-template-areas: '"n gutter l"'
-                      - grid-template-columns: min-content 5px min-content
-                      - grid-template-rows: min-content
-                    card:
-                      - display: |
-                          [[[
-                            var time = states["media_player.rishibs_echo_dot"].state
-                            let welcome = '';
-                            if (time != 'off'){
-                              welcome = 'block'
-                            } else {
-                              welcome = 'none'
-                            }
-                            return welcome;
-                          ]]]
-                      - padding: 6px 10px
-                      - font-size: 12px
-                      - line-height: 18px
-                      - font-weight: 500
-                    name:
-                      - color: white
-                    label:
-                      - color: white
-            styles:
-              grid:
-                - grid-template-areas: '"n" "badge"'
-              card:
-                - background: none
-                - padding: 50px 0
-              name:
-                - font-size: 32px
-                - color: white
-                - margin-top: '-5%'
-              custom_fields:
-                badge:
-                  - margin: 16px auto 0 auto
-                  - background: none
-            card_mod:
-              style:
-                .: |
-                  ha-card {
-                    border-radius: 28px !important;
-                    box-shadow: none !important;
-                    border: none !important;
-                   }
-          - type: conditional
-            conditions:
-              - condition: state
-                entity: media_player.rishibs_echo_dot
-                state_not: 'off'
-            card:
-              square: false
-              type: grid
-              cards:
-                - type: custom:button-card
-                  icon: mdi:skip-previous
-                  name: Previous track
-                  tap_action:
-                    action: call-service
-                    haptic: medium
-                    service: media_player.media_previous_track
-                    target:
-                      entity_id:
-                        - media_player.rishibs_echo_dot
-                    data: {}
-                  styles:
-                    icon:
-                      - width: 24px
-                    img_cell:
-                      - justify-content: flex-start
-                      - margin-top: 0px
-                    name:
-                      - justify-self: start
-                      - font-size: 14px
-                      - margin-top: 0px
-                      - color: var(--contrast20)
-                    card:
-                      - height: 84px
-                      - border-radius: 24px
-                      - padding: 8px 0px 16px 20px
-                    grid:
-                      - grid-template-areas: '"i" "n"'
-                - type: custom:button-card
-                  icon: mdi:skip-next
-                  name: Next track
-                  tap_action:
-                    action: call-service
-                    haptic: medium
-                    service: media_player.media_next_track
-                    target:
-                      entity_id:
-                        - media_player.rishibs_echo_dot
-                    data: {}
-                  styles:
-                    icon:
-                      - width: 24px
-                    img_cell:
-                      - justify-content: flex-start
-                      - margin-top: 0px
-                    name:
-                      - justify-self: start
-                      - font-size: 14px
-                      - margin-top: 0px
-                      - color: var(--contrast20)
-                    card:
-                      - height: 84px
-                      - border-radius: 24px
-                      - padding: 8px 0px 16px 20px
-                    grid:
-                      - grid-template-areas: '"i" "n"'
-                - type: custom:button-card
-                  icon: mdi:play
-                  entity: media_player.rishibs_echo_dot
-                  name: Play
-                  tap_action:
-                    action: call-service
-                    haptic: medium
-                    service: media_player.media_play_pause
-                    target:
-                      entity_id: media_player.rishibs_echo_dot
-                    data: {}
-                  styles:
-                    icon:
-                      - width: 24px
-                      - margin-left: '-2%'
-                      - color: null
-                    img_cell:
-                      - justify-content: flex-start
-                      - margin-top: 0px
-                    name:
-                      - justify-self: start
-                      - font-size: 14px
-                      - margin-top: 0px
-                    card:
-                      - height: 184px
-                      - border-radius: 24px
-                      - padding: 108px 0px 16px 20px
-                    grid:
-                      - grid-template-areas: '"i" "n"'
-                  state:
-                    - value: playing
-                      name: Pause
-                      icon: mdi:pause
-                      styles:
-                        card:
-                          - background: rgb(101,136,255)
-                        icon:
-                          - color: white
-                        name:
-                          - color: white
-                - type: grid
-                  columns: 1
-                  square: false
-                  cards:
-                    - type: custom:button-card
-                      icon: mdi:volume-plus
-                      name: Volume up
-                      tap_action:
-                        action: call-service
-                        haptic: medium
-                        service: media_player.volume_up
-                        service_data:
-                          entity_id: media_player.rishibs_echo_dot
-                      styles:
-                        icon:
-                          - width: 24px
-                        img_cell:
-                          - justify-content: flex-start
-                          - margin-top: 0px
-                        name:
-                          - justify-self: start
-                          - font-size: 14px
-                          - margin-top: 0px
-                          - color: var(--contrast20)
-                        card:
-                          - height: 84px
-                          - border-radius: 24px
-                          - padding: 8px 0px 16px 20px
-                        grid:
-                          - grid-template-areas: '"i" "n"'
-                    - type: custom:button-card
-                      icon: mdi:volume-minus
-                      name: Volume down
-                      tap_action:
-                        action: call-service
-                        haptic: medium
-                        service: media_player.volume_down
-                        service_data:
-                          entity_id: media_player.rishibs_echo_dot
-                      styles:
-                        icon:
-                          - width: 24px
-                          - color: var(--contrast20)
-                        img_cell:
-                          - justify-content: flex-start
-                          - margin-top: 0px
-                        name:
-                          - justify-self: start
-                          - font-size: 14px
-                          - margin-top: 0px
-                          - color: var(--contrast20)
-                        card:
-                          - height: 84px
-                          - border-radius: 24px
-                          - padding: 8px 0px 16px 20px
-                        grid:
-                          - grid-template-areas: '"i" "n"'
-                - type: custom:button-card
-                  icon: mdi:stop
-                  name: Stop
-                  tap_action:
-                    action: call-service
-                    haptic: medium
-                    service: media_player.media_stop
-                    target:
-                      entity_id: media_player.rishibs_echo_dot
-                    data: {}
-                  styles:
-                    icon:
-                      - width: 24px
-                    img_cell:
-                      - justify-content: flex-start
-                      - margin-top: 0px
-                    name:
-                      - justify-self: start
-                      - font-size: 14px
-                      - margin-top: 0px
-                      - color: var(--contrast20)
-                    card:
-                      - height: 84px
-                      - border-radius: 24px
-                      - padding: 8px 0px 16px 20px
-                    grid:
-                      - grid-template-areas: '"i" "n"'
-                - type: custom:button-card
-                  icon: mdi:power
-                  name: Power Off
-                  tap_action:
-                    action: call-service
-                    haptic: medium
-                    service: media_player.turn_off
-                    target:
-                      entity_id: media_player.rishibs_echo_dot
-                    data: {}
-                  styles:
-                    icon:
-                      - width: 24px
-                    img_cell:
-                      - justify-content: flex-start
-                      - margin-top: 0px
-                    name:
-                      - justify-self: start
-                      - font-size: 14px
-                      - margin-top: 0px
-                      - color: var(--contrast20)
-                    card:
-                      - height: 84px
-                      - border-radius: 24px
-                      - padding: 8px 0px 16px 20px
-                    grid:
-                      - grid-template-areas: '"i" "n"'
-              columns: 2
-          - type: custom:navbar-card
-            routes:
-              - url: /dashboard-mobile/Home
-                icon: mdi:home
-                label: Home
-              - url: /dashboard-mobile/System
-                icon: mdi:powershell
-                label: System
-              - url: /dashboard-mobile/Proxmox
-                icon: phu:proxmox
-                label: System
-              - url: /dashboard-mobile/Alexa
-                icon: phu:alexa-logo
-                label: Alexa
-          - type: vertical-stack
-            cards:
-              - square: false
-                type: grid
-                cards:
-                  - type: custom:button-card
-                    entity: sensor.rishibs_echo_dot_next_alarm
-                    show_state: true
-                    show_name: false
-                    styles:
-                      grid:
-                        - grid-template-areas: '"s eenheid" "l l"'
-                        - grid-template-columns: min-content min-content
-                      state:
-                        - font-size: 32px
-                        - color: var(--contrast20)
-                        - margin-top: '-35%'
-                      card:
-                        - height: 80px
-                        - border-radius: 24px
-                        - padding: 30px 0 6px 16px
-                        - box-sizing: border-box
-                        - background: var(--contrast2)
-                        - box-shadow: none
-                      label:
-                        - justify-self: start
-                        - font-size: 12px
-                        - color: var(--contrast20)
-                        - margin-top: '-30px'
-                      custom_fields:
-                        eenheid:
-                          - font-size: 12px
-                          - color: var(--contrast9)
-                          - margin-bottom: 6px
-                          - padding-left: 2px
-                    label: Wake Up Time
-                    show_label: true
-                    tap_action:
-                      action: more-info
-                    state:
-                      - value: null
-                  - type: custom:button-card
-                    entity: sensor.tomorrow_io_home_feels_like
-                    show_state: false
-                    show_name: true
-                    name: |
-                      [[[
-                        let myNumber = states["sensor.tomorrow_io_home_feels_like"].state;
-                          let roundedNumber = `${Math.round(myNumber)}°C`;
-                        return roundedNumber;
-                      ]]]
-                    styles:
-                      grid:
-                        - grid-template-areas: '"n eenheid" "l l"'
-                        - grid-template-columns: min-content min-content
-                      name:
-                        - font-size: 32px
-                        - color: var(--contrast20)
-                        - margin-top: '-62%'
-                      card:
-                        - height: 80px
-                        - border-radius: 24px
-                        - padding: 30px 0 6px 16px
-                        - box-sizing: border-box
-                        - background: var(--contrast2)
-                        - box-shadow: none
-                      label:
-                        - justify-self: start
-                        - font-size: 12px
-                        - color: var(--contrast20)
-                        - margin-top: '-30px'
-                    label: Feels Like
-                    show_label: true
-                    tap_action:
-                      action: none
-                  - type: custom:button-card
-                    entity: switch.rishibs_echo_dot_do_not_disturb_switch
-                    show_state: true
-                    show_name: false
-                    styles:
-                      grid:
-                        - grid-template-areas: '"s eenheid" "l l"'
-                        - grid-template-columns: min-content min-content
-                      state:
-                        - font-size: 32px
-                        - color: var(--contrast20)
-                        - margin-top: '-45%'
-                      card:
-                        - height: 80px
-                        - border-radius: 24px
-                        - padding: 30px 0 6px 16px
-                        - box-sizing: border-box
-                        - background: var(--contrast2)
-                        - box-shadow: none
-                      label:
-                        - justify-self: start
-                        - font-size: 12px
-                        - color: var(--contrast20)
-                        - margin-top: '-30px'
-                    label: Echo DND
-                    show_label: true
-                    tap_action:
-                      action: toggle
-                    state:
-                      - value: 'on'
-                        state_display: Active
-                        styles:
-                          state:
-                            - color: green
-                      - value: 'off'
-                        state_display: Disabled
-                        styles:
-                          state:
-                            - opacity: 50%
-                            - margin-top: '-30%'
-                            - margin-left: '-3%'
-                    confirmation:
-                      text: |
-                        [[[
-                          var time = states["switch.virtual_switch_1"].state
-                          let welcome = '';
-                          if (time == 'on'){
-                            welcome = 'This will disable all motion sensor automations.'
-                          } else {
-                            welcome = 'All motion sensor automations will be enabled.'
-                          }
-                          return welcome;
-                        ]]]
-                  - type: custom:button-card
-                    entity: sensor.rishibs_echo_dot_next_timer
-                    show_state: true
-                    show_name: false
-                    styles:
-                      grid:
-                        - grid-template-areas: '"s s" "l l"'
-                        - grid-template-columns: min-content min-content
-                      state:
-                        - font-size: 32px
-                        - justify-self: start
-                        - color: var(--contrast20)
-                        - margin-top: '-35%'
-                        - color: orange
-                      card:
-                        - height: 80px
-                        - border-radius: 24px
-                        - padding: 30px 0 6px 16px
-                        - box-sizing: border-box
-                        - background: var(--contrast2)
-                        - box-shadow: none
-                      label:
-                        - justify-self: start
-                        - font-size: 12px
-                        - color: var(--contrast20)
-                        - margin-top: '-30px'
-                    state:
-                      - value: idle
-                        styles:
-                          state:
-                            - color: null
-                            - opacity: 50%
-                    label: Echo next Timer
-                    show_label: true
-                    tap_action:
-                      action: more-info
-                columns: 2
-      - type: grid
-        cards: []
-      - type: grid
-        cards: []
-    theme: Material You Gradient
-    cards: []
-    icon: phu:alexa-logo
