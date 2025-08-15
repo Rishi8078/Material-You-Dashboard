@@ -2,6 +2,7 @@
 
 ![Dashboard Preview](IMG_0804.PNG)
 
+![Dashboard Preview second page](IMG_0809.jpg)
 ## How to Use
 
 ### 1\. Install the Theme
