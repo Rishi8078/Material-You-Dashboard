@@ -1,5 +1,4 @@
 Material You Gradient:
-  # ... (all the original md-sys variables are kept the same)
   md-sys-elevation-level0: none
   md-sys-elevation-level1: >-
     rgba(from var(--md-sys-color-shadow) r g b / 0.2) 0px 2px 1px -1px,
@@ -309,12 +308,11 @@ Material You Gradient:
       disabled-color: 'var(--disabled-color-light, #a5a5a5)'
       state-inactive-color: 'var(--state-inactive-color-light, #9e9e9e)'
 
-  # --- MODIFIED LINES ARE HERE ---
+  # --- MODIFIED BACKGROUND ---
   lovelace-background: 'linear-gradient(to left bottom, #34322c, #2a2d27, #212824, #192222, #141c1f)'
   view-background: 'linear-gradient(to left bottom, #34322c, #2a2d27, #212824, #192222, #141c1f)'
-  # --- END OF MODIFIED LINES ---
+  # --- END OF MODIFIED BACKGROUND ---
 
-  # The rest of the theme is below...
   primary-color: var(--md-sys-color-primary)
   accent-color: var(--md-sys-color-secondary)
   state-icon-color: var(--md-sys-color-on-surface-variant)
