@@ -1,8 +1,8 @@
 # Material-ui-Tablet-Dashboard
 
-![Dashboard Preview](IMG_0804.PNG)
+![Dashboard Preview](/dashboards/IMG_0804.PNG)
 
-![Dashboard Preview second page](IMG_0809.jpg)
+![Dashboard Preview second page](/dashboards/IMG_0809.jpg)
 ## How to Use
 
 ### 1\. Install the Theme
