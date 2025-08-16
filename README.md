@@ -81,3 +81,9 @@ If you want to hide the navigation bar without using material utils, follow thes
 > - **Simple Timers** – Keep track of everyday timers, like for making tea ☕
 >
 > 🔗 For more info, check out the [Timeflow-Card](https://github.com/Rishi8078/TimeFlow-Card)
+
+---
+
+
+<a href="https://coff.ee/rishi8078" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 40 px !important;width: 144.666px !important;" ></a>
+-----
