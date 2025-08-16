@@ -49,13 +49,49 @@ This dashboard uses a variety of custom cards to achieve its look and functional
 * **`custom:mini-graph-card`**: A custom card for creating compact graphs. Used for system monitoring.
 
 
-## ✨ Small self promotion : `custom:timeflow-card`
 
-If you like the dashboard please check out my card **`custom:timeflow-card`**. This card allows you to create beautiful, animated timers and countdownss.
-In this dashboard, `timeflow-card` is used to:
+### 4\. (Optional) Hide Navigation Bar If using material-you theme for ui 
 
-  * **Track Alexa Timers**: Automatically picks up timers and displays it.
-  * **Countdown to Events**: Visualize the time remaining until sunrise, sunset, or your next backup using entities
-  * **Simple Timers**: Keep track of everyday timers, like for making tea.
+If you want to hide the navigation bar without using material utils, follow these steps:
 
-For more info, check out the [Timeflow-card](https://github.com/Rishi8078/TimeFlow-Card)
+1.  Create a new file named `my-custom-styles.css` inside your `/config/www/` folder.
+2.  Paste the following code into the file and save it:
+
+    ```css
+    html {
+      --navbar-display: none !important;
+    }
+    ```
+
+3.  In Home Assistant, go to **Settings > Dashboards**, open the top-right three-dot menu, and select **Resources**.
+4.  Click **+ Add Resource** and enter the following:
+    *   **URL**: `/local/my-custom-styles.css`
+    *   **Resource Type**: `Stylesheet (CSS)`
+5.  Click **Create**, then go to your dashboard and perform a hard refresh (Ctrl+F5 or Cmd+Shift+R).
+
+## Kiosk Mode
+
+This dashboard looks best on a kiosk (full-screen) mode suitable for wall/tablet displays. To enable kiosk functionality install the following integrations from HACS:
+
+- `Kiosk Mode` (HACS)
+- `browser_mod` (HACS)
+
+The dashboard expects an `input_boolean` entity to act as the toggle for kiosk mode. Create an `input_boolean` in your Home Assistant Helpers section and name it `Kiosk Mode`.
+
+Notes:
+
+- Use `browser_mod` to target specific browsers/devices (if you want kiosk only on your tablet). See the `browser_mod` documentation for the correct service calls for your version.
+
+
+> [!TIP]  
+> ## ✨ Small self promotion : `custom:timeflow-card`
+> 
+> If you like the dashboard, please check out my card **`custom:timeflow-card`**.  
+> This card allows you to create **beautiful timers and countdowns**.
+>
+> In this dashboard, `timeflow-card` is used to:
+> - **Track Alexa Timers** – Automatically picks up timers and displays them  
+> - **Countdown to Events** – Visualize time remaining until sunrise, sunset, or your next backup using entities  
+> - **Simple Timers** – Keep track of everyday timers, like for making tea ☕
+>
+> 🔗 For more info, check out the [Timeflow-Card](https://github.com/Rishi8078/TimeFlow-Card)
