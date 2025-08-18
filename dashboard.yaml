@@ -352,11 +352,11 @@ views:
                       }
             columns: 1
             title: Overview
+            view_layout:
+              grid-area: lights
             grid_options:
               columns: 6
               rows: auto
-            view_layout:
-              grid-area: lights
           - square: false
             type: grid
             cards:
@@ -493,16 +493,16 @@ views:
                 entity: device_tracker.private_ble_device_e35b98
                 primary: iPhone
                 secondary: >
-                  {% if is_state('device_tracker.private_ble_device_e35b98',
-                  'home') %}
-                    Home
-                  {% else %}
-                    Away
-                  {% endif %}
+                  {% set battery = states('sensor.rishis_iphone_battery_level')
+                  %}
+
+                  {% set location = 'Home' if is_state(entity, 'home') else
+                  'Away' %}
+
+                  {{ location }} • {{ battery }}%
                 icon: mdi:cellphone
-                icon_color: >
-                  {% if is_state('device_tracker.private_ble_device_e35b98',
-                  'home') %}
+                icon_color: |
+                  {% if is_state(entity, 'home') %}
                     green
                   {% else %}
                     gray
@@ -510,6 +510,26 @@ views:
                 layout: horizontal
                 tap_action:
                   action: more-info
+                badge_icon: >
+                  {% set battery_level_str =
+                  states('sensor.rishis_iphone_battery_level') %} {% set state =
+                  states('sensor.rishis_iphone_battery_state') %} {% if state ==
+                  'Charging' %}
+                    mdi:battery-charging-outline
+                  {% elif battery_level_str not in ['unknown', 'unavailable']
+                  and battery_level_str | int(0) < 30 %}
+                    mdi:battery-alert-variant-outline
+                  {% endif %}
+                badge_color: >
+                  {% set battery_level_str =
+                  states('sensor.rishis_iphone_battery_level') %} {% set state =
+                  states('sensor.rishis_iphone_battery_state') %} {% if state ==
+                  'Charging' %}
+                    blue
+                  {% elif battery_level_str not in ['unknown', 'unavailable']
+                  and battery_level_str | int(0) < 30 %}
+                    red
+                  {% endif %}
                 card_mod:
                   style: |
                     ha-card {
@@ -521,16 +541,15 @@ views:
                 entity: device_tracker.private_ble_device_3b7ecc
                 primary: iPad
                 secondary: >
-                  {% if is_state('device_tracker.private_ble_device_3b7ecc',
-                  'home') %}
-                    Home
-                  {% else %}
-                    Away
-                  {% endif %}
+                  {% set battery = states('sensor.ipad_battery_level') %}
+
+                  {% set location = 'Home' if is_state(entity, 'home') else
+                  'Away' %}
+
+                  {{ location }} • {{ battery }}%
                 icon: mdi:tablet
-                icon_color: >
-                  {% if is_state('device_tracker.private_ble_device_3b7ecc',
-                  'home') %}
+                icon_color: |
+                  {% if is_state(entity, 'home') %}
                     green
                   {% else %}
                     gray
@@ -538,6 +557,24 @@ views:
                 layout: horizontal
                 tap_action:
                   action: more-info
+                badge_icon: >
+                  {% set battery_level_str = states('sensor.ipad_battery_level')
+                  %} {% set state = states('sensor.ipad_battery_state') %} {% if
+                  state == 'Charging' %}
+                    mdi:battery-charging-outline
+                  {% elif battery_level_str not in ['unknown', 'unavailable']
+                  and battery_level_str | int(0) < 30 %}
+                    mdi:battery-alert-variant-outline
+                  {% endif %}
+                badge_color: >
+                  {% set battery_level_str = states('sensor.ipad_battery_level')
+                  %} {% set state = states('sensor.ipad_battery_state') %} {% if
+                  state == 'Charging' %}
+                    blue
+                  {% elif battery_level_str not in ['unknown', 'unavailable']
+                  and battery_level_str | int(0) < 30 %}
+                    red
+                  {% endif %}
                 card_mod:
                   style: |
                     ha-card {
@@ -806,100 +843,83 @@ views:
             title: Lights
             view_layout:
               grid-area: lights
-          - type: custom:swipe-card
-            parameters:
-              spaceBetween: 10
-              initialSlide: 0
-              auto_height: false
+          - square: false
+            type: grid
             cards:
-              - square: false
-                type: grid
-                cards:
-                  - type: custom:button-card
-                    entity: sensor.40_b7_fc_18_ba_42_ba42_temperature
-                    name: Temperature
-                    icon: mdi:thermometer
-                    size: 30%
-                    show_state: true
-                    aspect_ratio: 1/1
-                    double_tap_action:
-                      action: more-info
-                    styles:
-                      name:
-                        - font-size: 12px
-                        - padding-bottom: 3px !important;
-                      state:
-                        - font-size:18px
-                        - padding-bottom: 8px !important;
-                  - type: custom:button-card
-                    entity: sensor.40_b7_fc_18_ba_42_ba42_humidity
-                    name: Humidity
-                    icon: mdi:water-percent
-                    size: 30%
-                    show_state: true
-                    aspect_ratio: 1/1
-                    tap_action:
-                      action: more-info
-                    styles:
-                      name:
-                        - font-size: 12px
-                        - padding-bottom: 3px !important;
-                      state:
-                        - font-size:18px
-                        - padding-bottom: 8px !important;
-                  - type: conditional
-                    conditions:
-                      - condition: numeric_state
-                        entity: sensor.40_b7_fc_18_ba_42_ba42_battery
-                        below: 10
+              - type: custom:button-card
+                entity: sensor.40_b7_fc_18_ba_42_ba42_temperature
+                name: Temperature
+                icon: mdi:thermometer
+                size: 30%
+                show_state: true
+                aspect_ratio: 1/1
+                double_tap_action:
+                  action: more-info
+                styles:
+                  name:
+                    - font-size: 12px
+                    - padding-bottom: 3px !important;
+                  state:
+                    - font-size:18px
+                    - padding-bottom: 8px !important;
+              - type: custom:button-card
+                entity: sensor.40_b7_fc_18_ba_42_ba42_humidity
+                name: Humidity
+                icon: mdi:water-percent
+                size: 30%
+                show_state: true
+                aspect_ratio: 1/1
+                tap_action:
+                  action: more-info
+                styles:
+                  name:
+                    - font-size: 12px
+                    - padding-bottom: 3px !important;
+                  state:
+                    - font-size:18px
+                    - padding-bottom: 8px !important;
+              - type: conditional
+                conditions:
+                  - condition: numeric_state
+                    entity: sensor.40_b7_fc_18_ba_42_ba42_battery
+                    below: 10
+                card:
+                  type: custom:button-card
+                  entity: sensor.40_b7_fc_18_ba_42_ba42_battery
+                  name: Low Battery
+                  icon: mdi:battery-alert-variant-outline
+                  size: 30%
+                  show_state: true
+                  aspect_ratio: 1/1
+                  styles:
                     card:
-                      type: custom:button-card
-                      entity: sensor.40_b7_fc_18_ba_42_ba42_battery
-                      name: Low Battery
-                      icon: mdi:battery-alert-variant-outline
-                      size: 30%
-                      show_state: true
-                      aspect_ratio: 1/1
-                      styles:
-                        card:
-                          - border: 1px solid var(--error-color, red)
-                        icon:
-                          - color: var(--error-color, red)
-                        name:
-                          - font-size: 12px
-                          - padding-bottom: 3px !important
-                        state:
-                          - font-size: 18px
-                          - padding-bottom: 8px !important
-                  - type: custom:button-card
-                    entity: sensor.human_presence_sensor_illuminance
-                    name: Ambient Light
-                    icon: mdi:brightness-5
-                    size: 30%
-                    show_state: true
-                    aspect_ratio: 1/1
-                    styles:
-                      name:
-                        - font-size: 12px
-                        - padding-bottom: 3px !important;
-                      state:
-                        - font-size:18px
-                        - padding-bottom: 8px !important;
-                title: Climate
-                columns: 3
-                view_layout:
-                  grid-area: climate
-          - type: custom:navbar-card
-            routes:
-              - url: /dashboard-mobile/Home
-                icon: mdi:home
-                label: Home
-              - url: /dashboard-mobile/System
-                icon: mdi:powershell
-                label: System
-              - url: /dashboard-mobile/Proxmox
-                icon: phu:proxmox
-                label: System
+                      - border: 1px solid var(--error-color, red)
+                    icon:
+                      - color: var(--error-color, red)
+                    name:
+                      - font-size: 12px
+                      - padding-bottom: 3px !important
+                    state:
+                      - font-size: 18px
+                      - padding-bottom: 8px !important
+              - type: custom:button-card
+                entity: sensor.human_presence_sensor_illuminance
+                name: Ambient Light
+                icon: mdi:brightness-5
+                size: 30%
+                show_state: true
+                aspect_ratio: 1/1
+                styles:
+                  name:
+                    - font-size: 12px
+                    - padding-bottom: 3px !important;
+                  state:
+                    - font-size:18px
+                    - padding-bottom: 8px !important;
+            title: Climate
+            columns: 3
+            view_layout:
+              grid-area: climate
           - square: true
             type: grid
             cards:
@@ -978,6 +998,32 @@ views:
         cards:
           - type: custom:gap-card
             height: 112
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: custom:button-card
+            entity: person.rishi
+            show_name: false
+            show_state: false
+            show_entity_picture: true
+            styles:
+              card:
+                - background-color: transparent
+                - border: none
+                - box-shadow: none
+                - padding-top: 10px
+              grid:
+                - grid-template-areas: '"empty p"'
+                - grid-template-columns: 1fr auto
+              entity_picture:
+                - grid-area: p
+                - width: 70px
+                - height: 70px
+                - border-radius: 80%
+                - background-color: '#444444'
+            grid_options:
+              columns: 6
+              rows: auto
           - square: false
             type: grid
             cards:
@@ -1109,15 +1155,14 @@ views:
           - square: false
             type: grid
             cards:
-              - type: custom:timeflow-card
+              - type: custom:timeflow-card-beta
+                auto_discover_alexa: true
+                show_timer_info: false
                 title: Alexa
-                timer_entity: sensor.rishibs_echo_dot_next_timer
-                show_seconds: true
-                show_minutes: true
-                expired_text: No timers
+                show_alexa_device: false
                 background_color: rgba(69, 70, 68, 0.4)
                 expired_animation: false
-                progress_color: rgba(69, 70, 68, 0.4)
+                progress_color: rgba(119, 20, 318, 0.4)
                 card_mod:
                   style: |
                     .card-content {
@@ -1136,12 +1181,22 @@ views:
                       box-shadow: none !important;
                       border: none !important;
                      }
-              - type: custom:timeflow-card
+              - type: custom:timeflow-card-beta
                 timer_entity: timer.tea
                 show_seconds: true
                 show_minutes: true
                 background_color: rgba(69, 70, 68, 0.4)
                 progress_color: '#88B596'
+                tap_action:
+                  action: call-service
+                  service: script.toggle_tea_timer
+                double_tap_action:
+                  action: call-service
+                  service: timer.cancel
+                  target:
+                    entity_id: timer.tea
+                hold_action:
+                  action: more-info
                 card_mod:
                   style: |
                     .card-content {
@@ -1159,7 +1214,7 @@ views:
                       border-radius: 28px !important;
                       box-shadow: none !important;
                       border: none !important;
-                     }
+                      }
                 grid_options:
                   columns: 8
             columns: 2
@@ -1211,7 +1266,7 @@ views:
                         align-items: center !important;
                         justify-content: space-between !important;
                       }
-                  tap_action: null
+                tap_action:
                   action: more-info
                   entity: sun.sun
               - type: custom:timeflow-card
@@ -1255,11 +1310,18 @@ views:
             view_layout:
               grid-area: lights
       - type: grid
-        cards: []
-      - type: grid
-        cards: []
-      - type: grid
-        cards: []
+        cards:
+          - type: custom:navbar-card
+            routes:
+              - url: /dashboard-mobile/Home
+                icon: mdi:home
+                label: Home
+              - url: /dashboard-mobile/System
+                icon: mdi:powershell
+                label: System
+              - url: /dashboard-mobile/Proxmox
+                icon: phu:proxmox
+                label: System
     theme: Material You
     badges: []
     background:
@@ -1269,7 +1331,7 @@ views:
       repeat: no-repeat
       attachment: scroll
     header:
-      layout: center
+      layout: responsive
       badges_position: top
       badges_wrap: wrap
     cards: []
@@ -1471,6 +1533,8 @@ views:
                   - entity: sensor.system_monitor_ipv4_address_enp1s0
                     name: Current IP Address
                     secondary_info: none
+                  - entity: sensor.system_monitor_ipv4_address_tailscale0
+                    name: Tailscale IP Address
                   - entity: binary_sensor.tailscale_running
                     name: Tailscale
                     icon: phu:tailscale
