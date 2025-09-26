@@ -86,18 +86,12 @@ If you want to hide the top navigation bar, follow these steps:
     * **Resource Type**: `Stylesheet (CSS)`
 5.  Click **Create**, then go to your dashboard and perform a hard refresh (Ctrl+F5 or Cmd+Shift+R).
 
-> [!TIP]  
-> ## ✨ Small self promotion : `custom:timeflow-card`
-> 
-> If you like the dashboard, please check out my card **`custom:timeflow-card`**.  
-> This card allows you to create **beautiful timers and countdowns**.
+
+> [!TIP]
+> ## Like the timers?
+> This dashboard uses my `timeflow-card` to track everything from Alexa timers to the sunset countdown. It's a custom card for creating beautiful timers.
 >
-> In this dashboard, `timeflow-card` is used to:
-> - **Track Alexa Timers** – Automatically picks up timers and displays them  
-> - **Countdown to Events** – Visualize time remaining until sunrise, sunset, or your next backup using entities  
-> - **Simple Timers** – Keep track of everyday timers, like for making tea ☕
->
-> 🔗 For more info, check out the [Timeflow-Card](https://github.com/Rishi8078/TimeFlow-Card)
+> 🔗 [Learn more and get the Timeflow-Card here.](https://github.com/Rishi8078/TimeFlow-Card)
 
 ---
 
