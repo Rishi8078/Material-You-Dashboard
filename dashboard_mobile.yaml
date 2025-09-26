@@ -73,43 +73,13 @@ button_card_templates:
         - font-size: 12px
 views:
   - type: sections
-    max_columns: 3
+    max_columns: 1
     dense_section_placement: false
     path: Home
     title: Home
     sections:
       - type: grid
         cards:
-          - type: vertical-stack
-            cards:
-              - type: markdown
-                content: |
-                  {{ now().strftime('%I:%M %p') }}
-                card_mod:
-                  style: |
-                    ha-card {
-                      text-align: left;
-                      font-size: 60px;
-                      font-weight: 680;
-                      margin-top: -20px;
-                      background: none;
-                      border: none;
-                      box-shadow: none;
-                    }
-              - type: markdown
-                content: |
-                  {{ now().strftime('%A, %B %-d') }}
-                card_mod:
-                  style: |
-                    ha-card {
-                      text-align: left;
-                      font-size: 15px;
-                      font-weight: 400;
-                      margin-top: -56px;
-                      background: none;
-                      border: none;
-                      box-shadow: none;
-                    }
           - square: false
             type: grid
             cards:
@@ -161,12 +131,21 @@ views:
                       box-shadow: none;
                       background: none;
                     }
-              - type: custom:mushroom-template-card
-                primary: Last Wash Cycle
-                secondary: |-
-                  {% if states('input_datetime.last_wash_cycle') != 'unknown' %}
-                    {% set last_date = states('input_datetime.last_wash_cycle') %}
-                    {% set days_since_wash = (now().date() - as_datetime(last_date).date()).days %}
+              - type: conditional
+                conditions:
+                  - condition: state
+                    entity: binary_sensor.laundry_overdue
+                    state: 'on'
+                card:
+                  type: custom:mushroom-template-card
+                  primary: Last Wash Cycle
+                  secondary: >-
+                    {% set last_date = states('input_datetime.last_wash_cycle')
+                    %}
+
+                    {% set days_since_wash = (now().date() -
+                    as_datetime(last_date).date()).days %}
+
                     {% if days_since_wash == 0 %}
                       Today
                     {% elif days_since_wash == 1 %}
@@ -174,19 +153,14 @@ views:
                     {% else %}
                       {{ days_since_wash }} days ago
                     {% endif %}
-                  {% else %}
-                    No wash cycle data available
-                  {% endif %}
-                icon: |-
-                  {% if states('input_datetime.last_wash_cycle') != 'unknown' %}
-                    mdi:washing-machine
-                  {% else %}
-                    mdi:help-circle
-                  {% endif %}
-                icon_color: |-
-                  {% if states('input_datetime.last_wash_cycle') != 'unknown' %}
-                    {% set last_date = states('input_datetime.last_wash_cycle') %}
-                    {% set days_since_wash = (now().date() - as_datetime(last_date).date()).days %}
+                  icon: mdi:washing-machine
+                  icon_color: >-
+                    {% set last_date = states('input_datetime.last_wash_cycle')
+                    %}
+
+                    {% set days_since_wash = (now().date() -
+                    as_datetime(last_date).date()).days %}
+
                     {% if days_since_wash <= 7 %}
                       green
                     {% elif days_since_wash <= 14 %}
@@ -194,20 +168,17 @@ views:
                     {% else %}
                       red
                     {% endif %}
-                  {% else %}
-                    red
-                  {% endif %}
-                fill_container: true
-                card_mod:
-                  style: |
-                    ha-card {
-                      border: none;
-                      box-shadow: none;
-                      background: none;
-                    }
-                tap_action:
-                  action: navigate
-                  navigation_path: '#laundry'
+                  fill_container: true
+                  card_mod:
+                    style: |
+                      ha-card {
+                        border: none;
+                        box-shadow: none;
+                        background: none;
+                      }
+                  tap_action:
+                    action: navigate
+                    navigation_path: '#laundry'
               - type: conditional
                 conditions:
                   - entity: sensor.unread_messages
@@ -352,11 +323,11 @@ views:
                       }
             columns: 1
             title: Overview
-            view_layout:
-              grid-area: lights
             grid_options:
               columns: 6
               rows: auto
+            view_layout:
+              grid-area: lights
           - square: false
             type: grid
             cards:
@@ -376,7 +347,7 @@ views:
                       background: none;
                     }
               - type: custom:mushroom-entity-card
-                entity: switch.guest_wifi_5g
+                entity: switch.rt_ax53u_guest_2_4_ghz_1
                 name: Guest WiFi
                 icon: mdi:wifi
                 fill_container: true
@@ -390,7 +361,7 @@ views:
                       background: none;
                     }
             columns: 1
-            title: Quick Actions
+            title: Controls
             grid_options:
               columns: 6
               rows: auto
@@ -657,9 +628,6 @@ views:
                             - border-radius: 24px
                           icon:
                             - color: var(--black)
-                  - columns: 5
-                    type: grid
-                    cards:
                       - type: custom:button-card
                         icon: mdi:city
                         aspect_ratio: 1/1
@@ -674,6 +642,9 @@ views:
                             - border-radius: 24px
                           icon:
                             - color: var(--black)
+                  - columns: 5
+                    type: grid
+                    cards:
                       - type: custom:button-card
                         icon: mdi:weather-night
                         aspect_ratio: 1/1
@@ -719,8 +690,6 @@ views:
             title: Scenes
       - type: grid
         cards:
-          - type: custom:gap-card
-            height: 112
           - square: false
             type: grid
             cards:
@@ -996,128 +965,136 @@ views:
               grid-area: security
       - type: grid
         cards:
-          - type: custom:gap-card
-            height: 112
-            grid_options:
-              columns: 6
-              rows: auto
-          - type: custom:button-card
-            entity: person.rishi
-            show_name: false
-            show_state: false
-            show_entity_picture: true
-            styles:
-              card:
-                - background-color: transparent
-                - border: none
-                - box-shadow: none
-                - padding-top: 10px
-              grid:
-                - grid-template-areas: '"empty p"'
-                - grid-template-columns: 1fr auto
-              entity_picture:
-                - grid-area: p
-                - width: 70px
-                - height: 70px
-                - border-radius: 80%
-                - background-color: '#444444'
-            grid_options:
-              columns: 6
-              rows: auto
           - square: false
             type: grid
             cards:
-              - type: custom:button-card
-                entity: weather.pirateweather
-                show_name: false
-                show_icon: false
-                custom_fields:
-                  temp: |
-                    [[[
-                      return states['weather.pirateweather'].attributes.temperature + '°'
-                    ]]]
-                  cond: |
-                    [[[
-                      var time = states["weather.pirateweather"].state
-                      let welcome = '';
-                      if (time == 'clear-night'){
-                        welcome = 'Clear';
-                      } else if (time == 'clear'){
-                        welcome = 'Sunny';
-                      } else if (time == 'partlycloudy'){
-                        welcome = 'Partly Cloudy';
-                      } else {
-                        welcome = states["weather.pirateweather"].state;
-                      }
-                      return welcome;
-                    ]]]
-                  icon: |
-                    [[[
-                      var weather = states["weather.pirateweather"].state
-                      let welcome = '';
-                      if (states['weather.pirateweather'].state == 'partlycloudy' && states['sun.sun'].state == 'below_horizon') {
-                        return '<img src = "/local/weather_icons/partly-cloudy-night.svg" width="90" height="90" />'
-                      } else {
-                        return '<img src = "/local/weather_icons/' + weather + '.svg" width="90" height="90" />'
-                      }
-                      return welcome;
-                    ]]] 
-                  icon2: |
-                    [[[
-                      var time = states["weather.pirateweather"].attributes.temperature
-                      let welcome = '';
-                      if (time <= 28){
-                        welcome = '<ha-icon icon="mdi:water-outline" style="width:26px; height: 26px;"> </ha-icon>'
-                      } else {
-                        welcome = '<ha-icon icon="mdi:water-outline" style="width:26px; height: 26px;"> </ha-icon>'
-                      }
-                      return welcome;
-                    ]]]
-                  prec: |
-                    [[[
-                      return states["weather.pirateweather"].attributes.humidity + '%'
-                    ]]]
-                  icon3: |
-                    [[[
-                      return '<ha-icon icon="mdi:weather-windy" style="width:26px; height: 26px;"> </ha-icon>'
-                    ]]]
-                  wind: |
-                    [[[
-                      let myNumber = states["weather.pirateweather"].attributes.wind_speed;
-                      let roundedNumber = `${Math.round(myNumber)} km/h`;
-                      return roundedNumber;
-                    ]]]
-                styles:
-                  grid:
-                    - grid-template-rows: 33% auto% 33%
-                    - grid-template-columns: 50% 25% 25%
-                    - grid-template-areas: |
-                        "icon icon2 icon3"
-                        "temp prec wind"
-                        "cond . ."
-                  card:
-                    - height: 120pt !important
-                  custom_fields:
-                    icon:
-                      - margin-top: 3%
-                    temp:
-                      - font-size: 22pt
-                      - font-weight: 700
-                    cond:
-                      - font-size: 10pt
-                      - margin-bottom: 3%
-                      - margin-left: '-3%'
-                      - text-transform: capitalize
-                    icon2:
-                      - margin-left: '-35%'
-                      - margin-top: 30%
-                    prec:
-                      - margin-left: '-34%'
-                    icon3:
-                      - margin-left: '-35%'
-                      - margin-top: 30%
-                    wind:
-                      - margin-left: '-34%'
+              - type: custom:swipe-card
+                card_width: calc(100% - 48px)
+                parameters:
+                  spaceBetween: 16
+                  initialSlide: 0
+                cards:
+                  - type: custom:button-card
+                    entity: weather.pirateweather
+                    show_name: false
+                    show_icon: false
+                    custom_fields:
+                      icon: |
+                        [[[
+                          var weather = states["weather.pirateweather"].state;
+                          if (states['weather.pirateweather'].state == 'partlycloudy' && states['sun.sun'].state == 'below_horizon') {
+                            return `<img src="/local/weather_icons/partly-cloudy-night.svg" width="90" height="90" />`
+                          } else {
+                            return `<img src="/local/weather_icons/${weather}.svg" width="90" height="90" />`
+                          }
+                        ]]]
+                      temp: |
+                        [[[
+                          return states['weather.pirateweather'].attributes.temperature + '°c'
+                        ]]]
+                      cond: |
+                        [[[
+                          var time = states["weather.pirateweather"].state;
+                          if (time == 'clear-night'){
+                            return 'Clear';
+                          } else if (time == 'clear'){
+                            return 'Sunny';
+                          } else if (time == 'partlycloudy'){
+                            return 'Partly Cloudy';
+                          } else {
+                            return states["weather.pirateweather"].state;
+                          }
+                        ]]]
+                    styles:
+                      card:
+                        - position: relative
+                        - height: 120pt
+                      custom_fields:
+                        icon:
+                          - position: absolute
+                          - top: 30%
+                          - left: 50%
+                          - right: 50%
+                          - transform: translate(-50%, -50%)
+                          - width: 90px
+                          - height: 90px
+                        temp:
+                          - position: absolute
+                          - top: 64%
+                          - left: 50%
+                          - transform: translate(-50%, -50%)
+                          - width: 100%
+                          - text-align: center
+                          - font-size: 23pt
+                          - font-weight: 700
+                        cond:
+                          - position: absolute
+                          - top: 80%
+                          - left: 50%
+                          - transform: translate(-50%, -50%)
+                          - width: 100%
+                          - text-align: center
+                          - font-size: 10pt
+                          - text-transform: capitalize
+                  - type: custom:button-card
+                    entity: weather.pirateweather
+                    show_name: false
+                    show_icon: false
+                    custom_fields:
+                      icon_humidity: >
+                        <ha-icon icon="mdi:water-outline" style="width:60px;
+                        height: 60px;"></ha-icon>
+                      humidity: |
+                        [[[
+                          return states["weather.pirateweather"].attributes.humidity + '%'
+                        ]]]
+                    styles:
+                      card:
+                        - position: relative
+                        - height: 120pt
+                      custom_fields:
+                        icon_humidity:
+                          - position: absolute
+                          - top: 35%
+                          - left: 50%
+                          - transform: translate(-50%, -50%)
+                        humidity:
+                          - position: absolute
+                          - top: 70%
+                          - left: 50%
+                          - transform: translate(-50%, -50%)
+                          - font-size: 18pt
+                          - font-weight: 600
+                  - type: custom:button-card
+                    entity: weather.pirateweather
+                    show_name: false
+                    show_icon: false
+                    custom_fields:
+                      icon_wind: >
+                        <ha-icon icon="mdi:weather-windy" style="width:40px;
+                        height: 40px;"></ha-icon>
+                      wind: |
+                        [[[
+                          let myNumber = states["weather.pirateweather"].attributes.wind_speed;
+                          return `${Math.round(myNumber)} km/h`;
+                        ]]]
+                    styles:
+                      card:
+                        - position: relative
+                        - height: 120pt
+                      custom_fields:
+                        icon_wind:
+                          - position: absolute
+                          - top: 35%
+                          - left: 50%
+                          - transform: translate(-50%, -50%)
+                        wind:
+                          - position: absolute
+                          - top: 70%
+                          - left: 50%
+                          - transform: translate(-50%, -50%)
+                          - font-size: 18pt
+                          - font-weight: 600
               - type: custom:swipe-card
                 card_width: calc(100% - 48px)
                 parameters:
@@ -1155,7 +1132,7 @@ views:
           - square: false
             type: grid
             cards:
-              - type: custom:timeflow-card-beta
+              - type: custom:timeflow-card
                 auto_discover_alexa: true
                 show_timer_info: false
                 title: Alexa
@@ -1181,7 +1158,7 @@ views:
                       box-shadow: none !important;
                       border: none !important;
                      }
-              - type: custom:timeflow-card-beta
+              - type: custom:timeflow-card
                 timer_entity: timer.tea
                 show_seconds: true
                 show_minutes: true
@@ -1309,19 +1286,46 @@ views:
             title: Timeflows
             view_layout:
               grid-area: lights
-      - type: grid
-        cards:
           - type: custom:navbar-card
+            iphone: null
+            show_labels: true
+            desktop: null
+            position: left
+            min_width: 768
+            layout: null
+            auto_padding: true
             routes:
-              - url: /dashboard-mobile/Home
+              - url: /dashboard-iphone/Home
                 icon: mdi:home
+                icon_selected: mdi:home-variant
                 label: Home
-              - url: /dashboard-mobile/System
+              - url: /dashboard-iphone/System
                 icon: mdi:powershell
                 label: System
-              - url: /dashboard-mobile/Proxmox
+              - url: /dashboard-iphone/Proxmox
                 icon: phu:proxmox
-                label: System
+                label: Proxmox
+              - url: /dashboard-iphone/timeflows
+                icon: mdi:timer
+                label: Timeflows
+            mobile:
+              mode: floating
+            styles: |
+              .navbar.mobile .icon { --mdc-icon-size: 28px; !}
+              .navbar.desktop .icon { --mdc-icon-size: 30px; }
+              .navbar {
+                background: #212824;
+              }
+          - type: custom:button-card
+            name: Looks like you've reached the end 👀
+            styles:
+              card:
+                - background: none
+                - box-shadow: none
+                - border: none
+              name:
+                - opacity: 60%
+                - font-size: 16px
     theme: Material You
     badges: []
     background:
@@ -1334,48 +1338,68 @@ views:
       layout: responsive
       badges_position: top
       badges_wrap: wrap
+      card:
+        type: custom:button-card
+        entity: person.rishi
+        show_name: false
+        show_state: false
+        show_entity_picture: false
+        show_icon: false
+        triggers_update: sensor.time
+        custom_fields:
+          left: |
+            [[[
+              const time = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+              const date = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+              
+              return `
+                <div style="text-align: left; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                  <span style="font-size: 46px; font-weight: 680; line-height: 1;">
+                    ${time}
+                  </span>
+                  <br>
+                  <span style="font-size: 15px; font-weight: 400;">
+                    ${date}
+                  </span>
+                </div>
+              `;
+            ]]]
+          avatar: |
+            [[[
+              const pic = (entity && entity.attributes && entity.attributes.entity_picture) ? entity.attributes.entity_picture : '';
+              return `<img src="${pic}" alt="" style="width:55px; height:55px; border-radius:50%; background:#444; display:block;" />`;
+            ]]]
+        styles:
+          card:
+            - background: transparent
+            - border: none
+            - box-shadow: none
+            - padding: 12px
+          grid:
+            - display: flex
+            - flex-direction: row
+            - align-items: flex-start
+            - justify-content: space-between
+            - gap: 12px
+          custom_fields:
+            left:
+              - order: 1
+              - min-width: 0
+            avatar:
+              - order: 2
+              - flex: 0 0 auto
     cards: []
     subview: false
     icon: mdi:home
     top_margin: false
   - type: sections
-    max_columns: 3
+    max_columns: 1
     dense_section_placement: false
     path: System
     title: System
     sections:
       - type: grid
         cards:
-          - type: vertical-stack
-            cards:
-              - type: markdown
-                content: |
-                  {{ now().strftime('%I:%M %p') }}
-                card_mod:
-                  style: |
-                    ha-card {
-                      text-align: left;
-                      font-size: 60px;
-                      font-weight: 680;
-                      margin-top: -20px;
-                      background: none;
-                      border: none;
-                      box-shadow: none;
-                    }
-              - type: markdown
-                content: |
-                  {{ now().strftime('%A, %B %-d') }}
-                card_mod:
-                  style: |
-                    ha-card {
-                      text-align: left;
-                      font-size: 15px;
-                      font-weight: 400;
-                      margin-top: -56px;
-                      background: none;
-                      border: none;
-                      box-shadow: none;
-                    }
           - square: false
             type: grid
             cards:
@@ -1528,40 +1552,6 @@ views:
           - square: false
             type: grid
             cards:
-              - type: entities
-                entities:
-                  - entity: sensor.system_monitor_ipv4_address_enp1s0
-                    name: Current IP Address
-                    secondary_info: none
-                  - entity: sensor.system_monitor_ipv4_address_tailscale0
-                    name: Tailscale IP Address
-                  - entity: binary_sensor.tailscale_running
-                    name: Tailscale
-                    icon: phu:tailscale
-                    secondary_info: none
-                  - entity: binary_sensor.adguard_home_running
-                    icon: phu:adguard
-                    name: Dns
-            title: Network
-            columns: 1
-          - type: custom:navbar-card
-            routes:
-              - url: /dashboard-mobile/Home
-                icon: mdi:home
-                label: Home
-              - url: /dashboard-mobile/System
-                icon: mdi:powershell
-                label: System
-              - url: /dashboard-mobile/Proxmox
-                icon: phu:proxmox
-                label: System
-      - type: grid
-        cards:
-          - type: custom:gap-card
-            height: 115
-          - square: false
-            type: grid
-            cards:
               - type: custom:button-card
                 entity: switch.linux_pc
                 icon: mdi:desktop-tower
@@ -1708,6 +1698,27 @@ views:
           - square: false
             type: grid
             cards:
+              - type: entities
+                entities:
+                  - entity: sensor.system_monitor_ipv4_address_enp1s0
+                    name: Current IP Address
+                    secondary_info: none
+                  - entity: sensor.system_monitor_ipv4_address_tailscale0
+                    name: Tailscale IP Address
+                  - entity: binary_sensor.tailscale_running
+                    name: Tailscale
+                    icon: phu:tailscale
+                    secondary_info: none
+                  - entity: binary_sensor.adguard_home_running
+                    icon: phu:adguard
+                    name: Dns
+            title: Network
+            columns: 1
+      - type: grid
+        cards:
+          - square: false
+            type: grid
+            cards:
               - type: custom:auto-entities
                 card:
                   type: entities
@@ -1733,40 +1744,226 @@ views:
             columns: 1
       - type: grid
         cards:
-          - type: custom:gap-card
-            height: 110
           - square: false
             type: grid
             cards:
-              - type: entities
-                entities:
-                  - entity: sensor.system_monitor_last_boot
-                    name: Last Boot
-                  - entity: sensor.current_version
-                    name: Core version
-                  - entity: sensor.home_assistant_operating_system_version
-                    name: OS version
-                  - entity: sensor.pending_update_counter
-                    name: Updates Avialable
-                show_header_toggle: true
-            title: Home Assistant Core & Supervisor
+              - type: custom:auto-entities
+                card:
+                  type: entities
+                  show_header_toggle: false
+                filter:
+                  include:
+                    - entity_id: sensor.tailscale_*_status
+                      state: /^(?!offline).*$/
+                  exclude: []
+                sort:
+                  method: friendly_name
+                show_empty: false
+                card_param: entities
+                card_mod:
+                  style: |
+                    ha-card {
+                      font-size: 13px;
+                    }
+                    /* This still works to make the icon a green badge */
+                    hui-generic-entity-row {
+                      --card-mod-icon-color: #4CAF50;
+                    }
+            title: Tailscale – Connected Clients
             columns: 1
           - square: false
             type: grid
             cards:
               - type: entities
                 entities:
-                  - sensor.issues
                   - sensor.active_issues
-                  - sensor.ignored_issues
                   - button.ignore_all_issues
-                  - button.unignore_all_issues
             title: Spooky Issues
             columns: 1
-      - type: grid
-        cards: []
-      - type: grid
-        cards: []
+          - type: vertical-stack
+            title: System Options
+            cards:
+              - type: custom:button-card
+                tap_action:
+                  action: none
+                show_name: false
+                show_icon: false
+                styles:
+                  card:
+                    - border-radius: 18px
+                    - padding: 5px
+                    - background-color: transparent
+                  grid:
+                    - grid-template-areas: '"button1 button2"'
+                    - grid-template-columns: 1fr 1fr
+                    - column-gap: 5px
+                custom_fields:
+                  button1:
+                    card:
+                      type: custom:button-card
+                      name: Restart HA
+                      icon: mdi:restart
+                      tap_action:
+                        action: call-service
+                        service: homeassistant.restart
+                      confirmation:
+                        text: Are you sure you want to restart Home Assistant?
+                      styles:
+                        card:
+                          - background-color: rgba(100, 116, 139, 0.3)
+                          - border-radius: 18px
+                          - height: 62px
+                          - box-shadow: none
+                        grid:
+                          - grid-template-areas: '"i n"'
+                          - grid-template-columns: min-content 1fr
+                          - column-gap: 0px
+                        icon:
+                          - justify-self: center
+                          - align-self: center
+                          - padding-left: 8px
+                        name:
+                          - align-self: center
+                          - font-size: 15px
+                      extra_styles: |
+                        ha-card:active {
+                          background-color: #3da853;
+                        }
+                  button2:
+                    card:
+                      type: custom:button-card
+                      name: Restart System
+                      icon: mdi:server
+                      tap_action:
+                        action: call-service
+                        service: hassio.host_reboot
+                      confirmation:
+                        text: Are you sure you want to restart the entire system?
+                      styles:
+                        card:
+                          - background-color: rgba(100, 116, 139, 0.3)
+                          - border-radius: 18px
+                          - height: 62px
+                          - box-shadow: none
+                        grid:
+                          - grid-template-areas: '"i n"'
+                          - grid-template-columns: min-content 1fr
+                          - column-gap: 8px
+                        icon:
+                          - justify-self: center
+                          - align-self: center
+                          - padding-left: 0px
+                        name:
+                          - align-self: center
+                          - font-size: 15px
+                      extra_styles: |
+                        ha-card:active {
+                          background-color: #3da853;
+                        }
+                card_mod:
+                  style: |
+                    ha-card {
+                      border: none;
+                      box-shadow: none;
+                      background: none;
+                    }
+              - type: custom:button-card
+                tap_action:
+                  action: none
+                show_name: false
+                show_icon: false
+                styles:
+                  card:
+                    - border-radius: 18px
+                    - padding-top: 1px
+                    - background-color: transparent
+                  grid:
+                    - grid-template-areas: '"button1"'
+                    - grid-template-columns: 1fr
+                custom_fields:
+                  button1:
+                    card:
+                      type: custom:button-card
+                      name: Power Off System
+                      icon: mdi:power
+                      tap_action:
+                        action: call-service
+                        service: hassio.host_shutdown
+                      confirmation:
+                        text: >
+                          Are you sure you want to shut down the system? This
+                          action is not easily reversible.
+                      styles:
+                        card:
+                          - background-color: rgba(215, 50, 50, 0.25)
+                          - border-radius: 20px
+                          - box-shadow: none
+                          - height: 62px
+                        grid:
+                          - grid-template-areas: '"i n"'
+                          - grid-template-columns: min-content 1fr
+                          - column-gap: 8px
+                        icon:
+                          - justify-self: center
+                          - align-self: center
+                          - padding-left: 8px
+                        name:
+                          - align-self: center
+                          - font-size: 15px
+                      extra_styles: |
+                        ha-card:active {
+                          background-color: #d73232; /* Bright red on tap */
+                        }
+                card_mod:
+                  style: |
+                    ha-card {
+                      border: none;
+                      box-shadow: none;
+                      background: none;
+                    }
+          - type: custom:navbar-card
+            iphone: null
+            show_labels: true
+            desktop: null
+            position: left
+            min_width: 768
+            layout: null
+            auto_padding: true
+            routes:
+              - url: /dashboard-iphone/Home
+                icon: mdi:home
+                icon_selected: mdi:home-variant
+                label: Home
+              - url: /dashboard-iphone/System
+                icon: mdi:powershell
+                label: System
+              - url: /dashboard-iphone/Proxmox
+                icon: phu:proxmox
+                label: Proxmox
+              - url: /dashboard-iphone/timeflows
+                icon: mdi:timer
+                label: Timeflows
+            mobile:
+              mode: floating
+            styles: |
+              .navbar.mobile .icon { --mdc-icon-size: 28px; !}
+              .navbar.desktop .icon { --mdc-icon-size: 30px; }
+              .navbar {
+                background: #212824;
+              }
+          - type: custom:button-card
+            name: |
+              [[[
+                return "HA Core v" + states['update.home_assistant_core_update'].attributes.installed_version + ", Supervisor v" + states['update.home_assistant_supervisor_update'].attributes.installed_version;
+              ]]]
+            styles:
+              card:
+                - background: none
+                - box-shadow: none
+                - border: none
+              name:
+                - opacity: 60%
+                - font-size: 16px
     theme: Material You
     badges: []
     background:
@@ -1779,63 +1976,1127 @@ views:
       layout: responsive
       badges_position: top
       badges_wrap: scroll
+      card:
+        type: custom:button-card
+        entity: person.rishi
+        show_name: false
+        show_state: false
+        show_entity_picture: false
+        show_icon: false
+        triggers_update: sensor.time
+        custom_fields:
+          left: |
+            [[[
+              const time = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+              const date = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+              
+              return `
+                <div style="text-align: left; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                  <span style="font-size: 46px; font-weight: 680; line-height: 1;">
+                    ${time}
+                  </span>
+                  <br>
+                  <span style="font-size: 15px; font-weight: 400;">
+                    ${date}
+                  </span>
+                </div>
+              `;
+            ]]]
+          avatar: |
+            [[[
+              const pic = (entity && entity.attributes && entity.attributes.entity_picture) ? entity.attributes.entity_picture : '';
+              return `<img src="${pic}" alt="" style="width:55px; height:55px; border-radius:50%; background:#444; display:block;" />`;
+            ]]]
+        styles:
+          card:
+            - background: transparent
+            - border: none
+            - box-shadow: none
+            - padding: 12px
+          grid:
+            - display: flex
+            - flex-direction: row
+            - align-items: flex-start
+            - justify-content: space-between
+            - gap: 12px
+          custom_fields:
+            left:
+              - order: 1
+              - min-width: 0
+            avatar:
+              - order: 2
+              - flex: 0 0 auto
     cards: []
     subview: false
     icon: mdi:account-group
   - type: sections
-    max_columns: 3
+    max_columns: 1
     title: Proxmox
     path: Proxmox
     icon: phu:proxmox
     sections:
       - type: grid
         cards:
-          - type: vertical-stack
+          - square: false
+            type: grid
             cards:
-              - type: markdown
-                content: |
-                  {{ now().strftime('%I:%M %p') }}
+              - type: custom:button-card
+                entity: sensor.washing_machine_41297
+                name: '41297'
+                icon: mdi:washing-machine
+                show_state: true
+                aspect_ratio: 1/1
+                size: 30%
+                tap_action:
+                  action: more-info
+                state_display: |
+                  [[[
+                    if (entity.state == 'AVAILABLE') return 'Available';
+                    if (entity.state == 'OCCUPIED') return 'Occupied';
+                    if (entity.state == 'STOPPABLE') return 'Your Wash';
+                    return 'Unknown';
+                  ]]]
+                state:
+                  - value: AVAILABLE
+                    color: '#e4dff9'
+                  - value: OCCUPIED
+                    color: '#FF5449'
+                  - value: STOPPABLE
+                    color: '#ffb41b'
+                  - operator: default
+                    color: '#75796c'
+                styles:
+                  card:
+                    - border: none
+                    - box-shadow: none
+                  name:
+                    - font-size: 12px
+                    - padding-bottom: 3px !important
+                  state:
+                    - font-size: 18px
+                    - padding-bottom: 8px !important
+              - type: custom:button-card
+                entity: sensor.washing_machine_41298
+                name: '41298'
+                icon: mdi:washing-machine
+                show_state: true
+                aspect_ratio: 1/1
+                size: 30%
+                tap_action:
+                  action: more-info
+                state_display: |
+                  [[[
+                    if (entity.state == 'AVAILABLE') return 'Available';
+                    if (entity.state == 'OCCUPIED') return 'Occupied';
+                    if (entity.state == 'STOPPABLE') return 'Your Wash';
+                    return 'Unknown';
+                  ]]]
+                state:
+                  - value: AVAILABLE
+                    color: '#e4dff9'
+                  - value: OCCUPIED
+                    color: '#FF5449'
+                  - value: STOPPABLE
+                    color: '#ffb41b'
+                  - operator: default
+                    color: '#75796c'
+                styles:
+                  card:
+                    - border: none
+                    - box-shadow: none
+                  name:
+                    - font-size: 12px
+                    - padding-bottom: 3px !important
+                  state:
+                    - font-size: 18px
+                    - padding-bottom: 8px !important
+              - type: custom:button-card
+                entity: sensor.washing_machine_41299
+                name: '41299'
+                icon: mdi:washing-machine
+                show_state: true
+                aspect_ratio: 1/1
+                size: 30%
+                tap_action:
+                  action: more-info
+                state_display: |
+                  [[[
+                    if (entity.state == 'AVAILABLE') return 'Available';
+                    if (entity.state == 'OCCUPIED') return 'Occupied';
+                    if (entity.state == 'STOPPABLE') return 'Your Wash';
+                    return 'Unknown';
+                  ]]]
+                state:
+                  - value: AVAILABLE
+                    color: '#e4dff9'
+                  - value: OCCUPIED
+                    color: '#FF5449'
+                  - value: STOPPABLE
+                    color: '#ffb41b'
+                  - operator: default
+                    color: '#75796c'
+                styles:
+                  card:
+                    - border: none
+                    - box-shadow: none
+                  name:
+                    - font-size: 12px
+                    - padding-bottom: 3px !important
+                  state:
+                    - font-size: 18px
+                    - padding-bottom: 8px !important
+              - type: custom:button-card
+                entity: sensor.washing_machine_41300
+                name: '41300'
+                icon: mdi:washing-machine
+                show_state: true
+                aspect_ratio: 1/1
+                size: 30%
+                tap_action:
+                  action: more-info
+                state_display: |
+                  [[[
+                    if (entity.state == 'AVAILABLE') return 'Available';
+                    if (entity.state == 'OCCUPIED') return 'Occupied';
+                    if (entity.state == 'STOPPABLE') return 'Your Wash';
+                    return 'Unknown';
+                  ]]]
+                state:
+                  - value: AVAILABLE
+                    color: '#e4dff9'
+                  - value: OCCUPIED
+                    color: '#FF5449'
+                  - value: STOPPABLE
+                    color: '#ffb41b'
+                  - operator: default
+                    color: '#75796c'
+                styles:
+                  card:
+                    - border: none
+                    - box-shadow: none
+                  name:
+                    - font-size: 12px
+                    - padding-bottom: 3px !important
+                  state:
+                    - font-size: 18px
+                    - padding-bottom: 8px !important
+              - type: custom:button-card
+                entity: sensor.dryer_41295
+                name: '41295'
+                icon: mdi:tumble-dryer
+                show_state: true
+                aspect_ratio: 1/1
+                size: 30%
+                tap_action:
+                  action: more-info
+                state_display: |
+                  [[[
+                    if (entity.state == 'AVAILABLE') return 'Available';
+                    if (entity.state == 'OCCUPIED') return 'Occupied';
+                    if (entity.state == 'STOPPABLE') return 'Your Wash';
+                    return 'Unknown';
+                  ]]]
+                state:
+                  - value: AVAILABLE
+                    color: '#e4dff9'
+                  - value: OCCUPIED
+                    color: '#FF5449'
+                  - value: STOPPABLE
+                    color: '#ffb41b'
+                  - operator: default
+                    color: '#75796c'
+                styles:
+                  card:
+                    - border: none
+                    - box-shadow: none
+                  name:
+                    - font-size: 12px
+                    - padding-bottom: 3px !important
+                  state:
+                    - font-size: 18px
+                    - padding-bottom: 8px !important
+              - type: custom:button-card
+                entity: sensor.dryer_41296
+                name: '41296'
+                icon: mdi:tumble-dryer
+                show_state: true
+                aspect_ratio: 1/1
+                size: 30%
+                tap_action:
+                  action: more-info
+                state_display: |
+                  [[[
+                    if (entity.state == 'AVAILABLE') return 'Available';
+                    if (entity.state == 'OCCUPIED') return 'Occupied';
+                    if (entity.state == 'STOPPABLE') return 'Your Wash';
+                    return 'Unknown';
+                  ]]]
+                state:
+                  - value: AVAILABLE
+                    color: '#e4dff9'
+                  - value: OCCUPIED
+                    color: '#FF5449'
+                  - value: STOPPABLE
+                    color: '#ffb41b'
+                  - operator: default
+                    color: '#75796c'
+                styles:
+                  card:
+                    - border: none
+                    - box-shadow: none
+                  name:
+                    - font-size: 12px
+                    - padding-bottom: 3px !important
+                  state:
+                    - font-size: 18px
+                    - padding-bottom: 8px !important
+            title: Washing Machines & Dryers
+            columns: 3
+            view_layout:
+              grid-area: climate
+      - type: grid
+        cards:
+          - square: false
+            type: grid
+            cards:
+              - type: custom:button-card
+                entity: sensor.next_bus
+                show_name: false
+                show_icon: false
+                show_state: false
+                fields:
+                  - topbar
+                  - eta
+                  - stops
+                custom_fields:
+                  topbar: |
+                    [[[
+                      const delay = entity.attributes.delay_minutes || 0;
+                      let statusText, statusColor;
+
+                      if (entity.state === 'unavailable') {
+                        statusText = 'Unavailable';
+                        statusColor = 'var(--disabled-text-color)';
+                      } else if (delay > 0) {
+                        statusText = `+${delay} min delay`;
+                        statusColor = 'var(--error-color)';
+                      } else {
+                        statusText = 'On Time';
+                        statusColor = 'var(--success-color)';
+                      }
+
+                      return `
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding: 12px 16px;">
+                          <div style="background-color: var(--primary-color); color: var(--text-primary-color); border-radius: 12px; padding: 4px 10px; font-size: 14px; font-weight: 600;">
+                            ${entity.attributes.line || '—'}
+                          </div>
+                          <div style="font-size: 14px; font-weight: 600; color: ${statusColor};">
+                            ${statusText}
+                          </div>
+                        </div>
+                      `;
+                    ]]]
+                  eta: |
+                    [[[
+                      const mins = entity.attributes.minutes_until_departure;
+                      const isNow = mins <= 0;
+                      let timeText, unitText = 'MIN';
+
+                      if (entity.state === 'unavailable') {
+                        timeText = '—';
+                        unitText = '';
+                      } else if (isNow) {
+                        timeText = 'NOW';
+                        unitText = '';
+                      } else if (mins < 60) {
+                        timeText = mins;
+                      } else {
+                        const h = Math.floor(mins / 60);
+                        const m = mins % 60;
+                        timeText = `${h}h ${m}m`;
+                        unitText = '';
+                      }
+
+                      return `
+                        <div style="display:flex; align-items:baseline; padding:0 16px; margin-top: 12px;">
+                          <span style="font-size: 60px; font-weight: 700; line-height: 1; color: var(--primary-text-color); animation: ${isNow ? 'pulse 1.5s infinite' : 'none'};">
+                            ${timeText}
+                          </span>
+                          <span style="font-size: 20px; font-weight: 400; color: var(--secondary-text-color); margin-left: 8px;">
+                            ${unitText}
+                          </span>
+                        </div>
+                        <style>
+                          @keyframes pulse {
+                            0% { opacity: 1; }
+                            50% { opacity: 0.6; }
+                            100% { opacity: 1; }
+                          }
+                        </style>
+                      `;
+                    ]]]
+                  stops: |
+                    [[[
+                      return `
+                        <div style="padding: 12px 16px; border-top: 1px solid var(--divider-color);">
+                          <div style="display:flex; align-items:center; gap:12px; margin-bottom: 8px;">
+                            <span style="width: 12px; height: 12px; border-radius: 50%; background: var(--primary-color); flex-shrink:0;"></span>
+                            <span style="color: var(--primary-text-color); font-size: 15px; font-weight: 500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                              ${entity.attributes.origin || '—'}
+                            </span>
+                          </div>
+                          <div style="display:flex; align-items:center; gap:12px;">
+                            <span style="width: 8px; height: 8px; border-radius: 50%; border: 2px solid var(--primary-color); flex-shrink:0;"></span>
+                            <span style="color: var(--secondary-text-color); font-size: 15px; font-weight: 500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                              ${entity.attributes.direction || '—'}
+                            </span>
+                          </div>
+                        </div>
+                      `;
+                    ]]]
+                styles:
+                  card:
+                    - background-color: var(--card-background-color)
+                    - border-radius: 28px
+                    - box-shadow: 0px 2px 4px rgba(0,0,0,0.1)
+                    - padding: 0
+                    - min-height: 190px
+                    - position: relative
+                    - overflow: hidden
+                    - transition: transform 0.15s ease-in-out
+                    - transform: scale(1)
+                  custom_fields:
+                    topbar:
+                      - position: absolute
+                      - top: 0
+                      - left: 0
+                      - right: 0
+                    eta:
+                      - position: absolute
+                      - top: 50%
+                      - left: 0
+                      - right: 0
+                      - transform: translateY(-65%)
+                    stops:
+                      - position: absolute
+                      - bottom: 0
+                      - left: 0
+                      - right: 0
+                card_mod:
+                  style: |
+                    ha-card:active {
+                      transform: scale(0.97);
+                    }
+              - type: custom:button-card
+                entity: sensor.time_in_bed
+                show_name: false
+                show_icon: false
+                show_state: false
+                fields:
+                  - topbar
+                  - timer
+                custom_fields:
+                  topbar: |
+                    [[[
+                      return `
+                        <div style="
+                          position: absolute;
+                          bottom: 65px;
+                          left: 19px;
+                          font-size: 16px;
+                          font-weight: 700;
+                          color: #fff;
+                          opacity: 0.9;
+                        ">
+                          Time In Bed
+                        </div>
+                      `;
+                    ]]]
+                  timer: |
+                    [[[
+                      // Convert decimal hours to HH:mm
+                      let hoursFloat = parseFloat(entity.state);
+                      if (isNaN(hoursFloat)) return `
+                        <div style="color:#fff; opacity: 0.6; font-size:16px; font-weight:600;">
+                          0 hr 0 min
+                        </div>`;
+
+                      let hrs = Math.floor(hoursFloat);
+                      let mins = Math.round((hoursFloat - hrs) * 60);
+
+                      return `
+                        <div style="
+                          position: absolute;
+                          bottom: 16px;
+                          left: 16px;
+                          display: flex;
+                          align-items: baseline;
+                          gap: 8px;
+                        ">
+                          <span style="
+                            font-size: 44px;
+                            font-weight: 700;
+                            line-height: 1;
+                            letter-spacing: -2px;
+                            color: #fff;">
+                            ${hrs}
+                          </span>
+                          <span style="
+                            font-size: 18px;
+                            font-weight: 400;
+                            color: #fff;
+                            opacity: 0.8;">
+                            hr
+                          </span>
+                          <span style="
+                            font-size: 44px;
+                            font-weight: 700;
+                            line-height: 1;
+                            letter-spacing: -2px;
+                            color: #fff;">
+                            ${mins}
+                          </span>
+                          <span style="
+                            font-size: 18px;
+                            font-weight: 400;
+                            color: #fff;
+                            opacity: 0.8;">
+                            min
+                          </span>
+                        </div>
+                      `;
+                    ]]]
+                styles:
+                  card:
+                    - height: 190px
+                grid_options:
+                  columns: 6
+                  rows: auto
                 card_mod:
                   style: |
                     ha-card {
-                      text-align: left;
-                      font-size: 60px;
-                      font-weight: 680;
-                      margin-top: -20px;
-                      background: none;
-                      border: none;
-                      box-shadow: none;
+                      border-radius: 28px !important;
+                      border: 1px solid rgba(255,255,255,0.05) !important;
                     }
-              - type: markdown
-                content: |
-                  {{ now().strftime('%A, %B %-d') }}
-                card_mod:
-                  style: |
-                    ha-card {
-                      text-align: left;
-                      font-size: 15px;
-                      font-weight: 400;
-                      margin-top: -56px;
-                      background: none;
-                      border: none;
-                      box-shadow: none;
+                    ha-card:active {
+                      transform: scale(0.97);
                     }
+            title: Transportation
+            columns: 2
+            view_layout:
+              grid-area: climate
+      - type: grid
+        cards:
           - type: custom:navbar-card
+            iphone: null
+            show_labels: true
+            desktop: null
+            position: left
+            min_width: 768
+            layout: null
+            auto_padding: true
             routes:
-              - url: /dashboard-mobile/Home
+              - url: /dashboard-iphone/Home
                 icon: mdi:home
+                icon_selected: mdi:home-variant
                 label: Home
-              - url: /dashboard-mobile/System
+              - url: /dashboard-iphone/System
                 icon: mdi:powershell
                 label: System
-              - url: /dashboard-mobile/Proxmox
+              - url: /dashboard-iphone/Proxmox
                 icon: phu:proxmox
-                label: System
-      - type: grid
-        cards: []
-      - type: grid
-        cards: []
-      - type: grid
-        cards: []
+                label: Proxmox
+              - url: /dashboard-iphone/timeflows
+                icon: mdi:timer
+                label: Timeflows
+            mobile:
+              mode: floating
+            styles: |
+              .navbar.mobile .icon { --mdc-icon-size: 28px; !}
+              .navbar.desktop .icon { --mdc-icon-size: 30px; }
+              .navbar {
+                background: #212824;
+              }
     theme: Material You
     cards: []
+    header:
+      card:
+        type: custom:button-card
+        entity: person.rishi
+        show_name: false
+        show_state: false
+        show_entity_picture: false
+        show_icon: false
+        triggers_update: sensor.time
+        custom_fields:
+          left: |
+            [[[
+              const time = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+              const date = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+              
+              return `
+                <div style="text-align: left; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                  <span style="font-size: 46px; font-weight: 680; line-height: 1;">
+                    ${time}
+                  </span>
+                  <br>
+                  <span style="font-size: 15px; font-weight: 400;">
+                    ${date}
+                  </span>
+                </div>
+              `;
+            ]]]
+          avatar: |
+            [[[
+              const pic = (entity && entity.attributes && entity.attributes.entity_picture) ? entity.attributes.entity_picture : '';
+              return `<img src="${pic}" alt="" style="width:55px; height:55px; border-radius:50%; background:#444; display:block;" />`;
+            ]]]
+        styles:
+          card:
+            - background: transparent
+            - border: none
+            - box-shadow: none
+            - padding: 12px
+          grid:
+            - display: flex
+            - flex-direction: row
+            - align-items: flex-start
+            - justify-content: space-between
+            - gap: 12px
+          custom_fields:
+            left:
+              - order: 1
+              - min-width: 0
+            avatar:
+              - order: 2
+              - flex: 0 0 auto
+  - type: sections
+    max_columns: 1
+    title: timeflows
+    path: timeflows
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Track the time
+            heading_style: title
+            icon: mdi:clock-time-eight
+          - square: false
+            type: grid
+            cards:
+              - type: custom:timeflow-card
+                title: Year
+                subtitle: |-
+                  {{ (((now().timetuple().tm_yday - 1) * 24 + now().hour) /
+                      ((now().replace(month=12, day=31) - now().replace(month=1, day=1)).days * 24)
+                     * 100) | round(1) }}%
+                target_date: >-
+                  {{ now().replace(month=12, day=31, hour=23, minute=59,
+                  second=59).strftime('%Y-%m-%dT%H:%M:%S') }}
+                creation_date: >-
+                  {{ now().replace(month=1, day=1, hour=0, minute=0,
+                  second=0).strftime('%Y-%m-%dT%H:%M:%S') }}
+                show_days: true
+                show_hours: false
+                show_minutes: false
+                show_seconds: false
+                color: '#34332D'
+                background_color: '#B6B69E'
+                progress_color: '#FEBC4C'
+                stroke_width: 6
+                card_mod:
+                  style:
+                    .: |
+                      ha-card .title {
+                        font-size: 1.2rem !important;
+                      }
+                      ha-card .subtitle {
+                        font-size: 2rem !important;
+                      }
+                      ha-card .card-content {
+                        display: flex !important;
+                        flex-direction: row !important;
+                        align-items: center !important;
+                        justify-content: space-between !important;
+                      }
+                      ha-card .header {
+                        margin-bottom: 0 !important;
+                      }
+                      ha-card .content {
+                        margin-top: 0 !important;
+                      }
+                      ha-card {
+                        border-radius: 28px !important;
+                        box-shadow: none !important;
+                        border: none !important;
+                       }
+              - type: custom:timeflow-card
+                title: Month
+                subtitle: |-
+                  {{ (((now().day - 1) * 24 + now().hour) /
+                      ((now().replace(month=now().month % 12 + 1, day=1) - now().replace(day=1)).days * 24)
+                     * 100) | round() }}%
+                target_date: >-
+                  {% set next_month = (now().replace(day=28) +
+                  timedelta(days=4)).replace(day=1) %} {{ (next_month -
+                  timedelta(seconds=1)).strftime('%Y-%m-%dT%H:%M:%S') }}
+                creation_date: >-
+                  {{ now().replace(day=1, hour=0, minute=0,
+                  second=0).strftime('%Y-%m-%dT%H:%M:%S') }}
+                show_days: true
+                show_hours: false
+                show_minutes: false
+                show_seconds: false
+                color: '#FEBC4C'
+                background_color: '#5B5B43'
+                progress_color: '#E15603'
+                stroke_width: 6
+                card_mod:
+                  style:
+                    .: |
+                      ha-card .title {
+                        font-size: 1.2rem !important;
+                      }
+                      ha-card .subtitle {
+                        font-size: 2rem !important;
+                      }
+                      ha-card .card-content {
+                        display: flex !important;
+                        flex-direction: row !important;
+                        align-items: center !important;
+                        justify-content: space-between !important;
+                      }
+                      ha-card .header {
+                        margin-bottom: 0 !important;
+                      }
+                      ha-card .content {
+                        margin-top: 0 !important;
+                      }
+                      ha-card {
+                        border-radius: 28px !important;
+                        box-shadow: none !important;
+                        border: none !important;
+                       }
+              - type: custom:timeflow-card
+                title: Week
+                subtitle: >-
+                  {{ ((now().weekday() * 24 + now().hour) / (7 * 24) * 100) |
+                  round }}%
+                target_date: >-
+                  {{ (now() + timedelta(days=(6 -
+                  now().weekday()))).replace(hour=23, minute=59,
+                  second=59).strftime('%Y-%m-%dT%H:%M:%S') }}
+                creation_date: >-
+                  {{ (now() - timedelta(days=now().weekday())).replace(hour=0,
+                  minute=0, second=0).strftime('%Y-%m-%dT%H:%M:%S') }}
+                show_days: true
+                show_hours: false
+                show_minutes: false
+                show_seconds: false
+                color: '#000001'
+                background_color: '#596E67'
+                progress_color: '#9CABA8'
+                stroke_width: 6
+                card_mod:
+                  style:
+                    .: |
+                      ha-card .title {
+                        font-size: 1.2rem !important;
+                      }
+                      ha-card .subtitle {
+                        font-size: 2rem !important;
+                      }
+                      ha-card .card-content {
+                        display: flex !important;
+                        flex-direction: row !important;
+                        align-items: center !important;
+                        justify-content: space-between !important;
+                      }
+                      ha-card .header {
+                        margin-bottom: 0 !important;
+                      }
+                      ha-card .content {
+                        margin-top: 0 !important;
+                      }
+                      ha-card {
+                        border-radius: 28px !important;
+                        box-shadow: none !important;
+                        border: none !important;
+                       }
+              - type: custom:timeflow-card
+                title: Today
+                subtitle: ' {{ (now().hour / 24 * 100) | round() }}%'
+                target_date: >-
+                  {{ (now().replace(hour=23, minute=59,
+                  second=59)).strftime('%Y-%m-%dT%H:%M:%S') }}
+                creation_date: >-
+                  {{ now().replace(hour=0, minute=0,
+                  second=0).strftime('%Y-%m-%dT%H:%M:%S') }}
+                show_days: false
+                show_hours: true
+                show_minutes: true
+                show_seconds: true
+                color: '#30341D'
+                background_color: '#E6E8D7'
+                progress_color: '#FB8200'
+                stroke_width: 6
+                card_mod:
+                  style:
+                    .: |
+                      ha-card .title {
+                        font-size: 1.2rem !important;
+                      }
+                      ha-card .subtitle {
+                        font-size: 2rem !important;
+                      }
+                      ha-card .card-content {
+                        display: flex !important;
+                        flex-direction: row !important;
+                        align-items: center !important;
+                        justify-content: space-between !important;
+                      }
+                      ha-card .header {
+                        margin-bottom: 0 !important;
+                      }
+                      ha-card .content {
+                        margin-top: 0 !important;
+                      }
+                      ha-card {
+                        border-radius: 28px !important;
+                        box-shadow: none !important;
+                        border: none !important;
+                      }
+                    progress-circle$: |
+                      .progress-bg {
+                        stroke: #C4CCA4 !important; /* Dark gray background track */
+                      }
+            columns: 2
+            view_layout:
+              grid-area: lights
+        column_span: 1
+      - type: grid
+        cards:
+          - type: heading
+            heading: Birthdays
+            heading_style: title
+            icon: mdi:cake-variant-outline
+          - square: false
+            type: grid
+            cards:
+              - type: custom:timeflow-card-beta
+                title: >-
+                  {% set person_name = "Rishi" %} {% set birth_year = 1999 %} {%
+                  set birthday_month = 8 %} {% set birthday_day = 31 %} {% set
+                  current_date = now() %} {% set this_year_birthday =
+                  current_date.replace(month=birthday_month, day=birthday_day,
+                  hour=0, minute=0, second=0, microsecond=0) %} {% if
+                  current_date > this_year_birthday %}
+                    {% set next_birthday = this_year_birthday.replace(year=this_year_birthday.year + 1) %}
+                  {% else %}
+                    {% set next_birthday = this_year_birthday %}
+                  {% endif %} {% set age = next_birthday.year - birth_year %} {{
+                  person_name }}'s {{ age }}{{ 
+                    'st' if age % 10 == 1 and age % 100 != 11 else
+                    'nd' if age % 10 == 2 and age % 100 != 12 else
+                    'rd' if age % 10 == 3 and age % 100 != 13 else
+                    'th'
+                  }} Birthday
+                target_date: >-
+                  {% set birthday_month = 8 %} {% set birthday_day = 31 %} {%
+                  set current_date = now() %} {% set this_year_birthday =
+                  current_date.replace(month=birthday_month, day=birthday_day,
+                  hour=0, minute=0, second=0, microsecond=0) %} {% if
+                  current_date > this_year_birthday %}
+                    {% set next_birthday = this_year_birthday.replace(year=this_year_birthday.year + 1) %}
+                  {% else %}
+                    {% set next_birthday = this_year_birthday %}
+                  {% endif %} {{ next_birthday.isoformat() }}
+                creation_date: >-
+                  {% set current_date = now() %} {% set start_of_year =
+                  current_date.replace(month=1, day=1, hour=0, minute=0,
+                  second=0, microsecond=0) %} {{ start_of_year.isoformat() }}
+                show_days: true
+                show_hours: true
+                show_minutes: true
+                show_seconds: false
+                color: >-
+                  {% set birthday_month = 8 %} {% set birthday_day = 31 %} {%
+                  set current_date = now() %} {% set this_year_birthday =
+                  current_date.replace(month=birthday_month, day=birthday_day,
+                  hour=0, minute=0, second=0, microsecond=0) %} {% if
+                  current_date > this_year_birthday %}
+                    {% set next_birthday = this_year_birthday.replace(year=this_year_birthday.year + 1) %}
+                  {% else %}
+                    {% set next_birthday = this_year_birthday %}
+                  {% endif %} {% set days_until = (next_birthday -
+                  current_date).days %} {% if days_until == 0 %}
+                    #FF6B6B
+                  {% elif days_until <= 7 %}
+                    #4ECDC4
+                  {% elif days_until <= 30 %}
+                    #45B7D1
+                  {% else %}
+                    #96CEB4
+                  {% endif %}
+                background_color: '#2C3150'
+                progress_color: '#D0CFCF'
+                height: 245
+                stroke_width: 6
+                card_mod:
+                  style: |
+                    ha-card .title {
+                      font-size: 2.2rem;
+                    }
+                    ha-card .subtitle {
+                      font-size: 2.0rem;
+                    }
+                    ha-card {
+                      border-radius: 28px !important;
+                      box-shadow: none !important;
+                      border: none !important;
+                     }
+                grid_options:
+                  columns: 12
+            columns: 1
+            view_layout:
+              grid-area: lights
+      - type: grid
+        cards:
+          - type: heading
+            heading: Chores
+            heading_style: title
+            icon: mdi:trash-can-outline
+          - type: grid
+            square: false
+            columns: 2
+            cards:
+              - type: custom:timeflow-card
+                title: Empty trash
+                target_date: '2025-08-22T18:00:00'
+                creation_date: '2025-08-17T18:00:00'
+                background_color: '#5b4130'
+                color: '#ffdbc7'
+                progress_color: '#e5bfa9'
+                show_months: false
+                show_days: true
+                show_hours: true
+                show_minutes: true
+                expired_text: Trash emptied
+                stroke_width: 6
+                card_mod:
+                  style:
+                    .: |
+                      ha-card .title {
+                        font-size: 1.2rem !important;
+                      }
+                      ha-card .subtitle {
+                        font-size: 1.2rem !important;
+                      }
+                      ha-card .card-content {
+                        display: flex !important;
+                        flex-direction: row !important;
+                        align-items: center !important;
+                        justify-content: space-between !important;
+                      }
+                      ha-card .header {
+                        margin-bottom: 0 !important;
+                      }
+                      ha-card .content {
+                        margin-top: 0 !important;
+                      }
+                      ha-card {
+                        border-radius: 28px !important;
+                        box-shadow: none !important;
+                        border: none !important;
+                      }
+              - type: custom:timeflow-card
+                title: Laundry Timer
+                target_date: '2025-08-19T13:14:00'
+                creation_date: '2025-08-19T12:34:00'
+                background_color: '#004f54'
+                color: '#9df0f8'
+                show_minutes: true
+                progress_color: '#9df0f8'
+                expired_text: Washing Completed
+                stroke_width: 6
+                card_mod:
+                  style:
+                    .: |
+                      ha-card .title {
+                        font-size: 1.2rem !important;
+                      }
+                      ha-card .subtitle {
+                        font-size: 1.2rem !important;
+                      }
+                      ha-card .card-content {
+                        display: flex !important;
+                        flex-direction: row !important;
+                        align-items: center !important;
+                        justify-content: space-between !important;
+                      }
+                      ha-card .header {
+                        margin-bottom: 0 !important;
+                      }
+                      ha-card .content {
+                        margin-top: 0 !important;
+                      }
+                      ha-card {
+                        border-radius: 28px !important;
+                        box-shadow: none !important;
+                        border: none !important;
+                      }
+              - type: custom:timeflow-card
+                title: Dishwasher Timer
+                target_date: '2025-08-19T12:15:00'
+                creation_date: '2025-08-19T11:00:00'
+                background_color: '#374764'
+                color: '#f4fafd'
+                show_minutes: true
+                progress_color: '#f4fafd'
+                expired_text: Completed
+                stroke_width: 6
+                card_mod:
+                  style:
+                    .: |
+                      ha-card .title {
+                        font-size: 1.2rem !important;
+                      }
+                      ha-card .subtitle {
+                        font-size: 1.2rem !important;
+                      }
+                      ha-card .card-content {
+                        display: flex !important;
+                        flex-direction: row !important;
+                        align-items: center !important;
+                        justify-content: space-between !important;
+                      }
+                      ha-card .header {
+                        margin-bottom: 0 !important;
+                      }
+                      ha-card .content {
+                        margin-top: 0 !important;
+                      }
+                      ha-card {
+                        border-radius: 28px !important;
+                        box-shadow: none !important;
+                        border: none !important;
+                      }
+              - type: custom:timeflow-card
+                title: Grocery Shopping
+                target_date: '2025-08-23T13:14:00'
+                creation_date: '2025-08-17T12:34:00'
+                background_color: '#48491e'
+                color: '#e6e6ad'
+                show_days: true
+                progress_color: '#e6e6ad'
+                expired_text: Time to shop!
+                stroke_width: 6
+                card_mod:
+                  style:
+                    .: |
+                      ha-card .title {
+                        font-size: 1.2rem !important;
+                      }
+                      ha-card .subtitle {
+                        font-size: 1.2rem !important;
+                      }
+                      ha-card .card-content {
+                        display: flex !important;
+                        flex-direction: row !important;
+                        align-items: center !important;
+                        justify-content: space-between !important;
+                      }
+                      ha-card .header {
+                        margin-bottom: 0 !important;
+                      }
+                      ha-card .content {
+                        margin-top: 0 !important;
+                      }
+                      ha-card {
+                        border-radius: 28px !important;
+                        box-shadow: none !important;
+                        border: none !important;
+                      }
+          - type: custom:navbar-card
+            iphone: null
+            show_labels: true
+            desktop: null
+            position: left
+            min_width: 768
+            layout: null
+            auto_padding: true
+            routes:
+              - url: /dashboard-iphone/Home
+                icon: mdi:home
+                icon_selected: mdi:home-variant
+                label: Home
+              - url: /dashboard-iphone/System
+                icon: mdi:powershell
+                label: System
+              - url: /dashboard-iphone/Proxmox
+                icon: phu:proxmox
+                label: Proxmox
+              - url: /dashboard-iphone/timeflows
+                icon: mdi:timer
+                label: Timeflows
+            mobile:
+              mode: floating
+            styles: |
+              .navbar.mobile .icon { --mdc-icon-size: 28px; !}
+              .navbar.desktop .icon { --mdc-icon-size: 30px; }
+              .navbar {
+                background: #212824;
+              }
+    header:
+      card:
+        type: custom:button-card
+        entity: person.rishi
+        show_name: false
+        show_state: false
+        show_entity_picture: false
+        show_icon: false
+        triggers_update: sensor.time
+        custom_fields:
+          left: |
+            [[[
+              const time = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+              const date = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+              
+              return `
+                <div style="text-align: left; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                  <span style="font-size: 46px; font-weight: 680; line-height: 1;">
+                    ${time}
+                  </span>
+                  <br>
+                  <span style="font-size: 15px; font-weight: 400;">
+                    ${date}
+                  </span>
+                </div>
+              `;
+            ]]]
+          avatar: |
+            [[[
+              const pic = (entity && entity.attributes && entity.attributes.entity_picture) ? entity.attributes.entity_picture : '';
+              return `<img src="${pic}" alt="" style="width:55px; height:55px; border-radius:50%; background:#444; display:block;" />`;
+            ]]]
+        styles:
+          card:
+            - background: transparent
+            - border: none
+            - box-shadow: none
+            - padding: 12px
+          grid:
+            - display: flex
+            - flex-direction: row
+            - align-items: flex-start
+            - justify-content: space-between
+            - gap: 12px
+          custom_fields:
+            left:
+              - order: 1
+              - min-width: 0
+            avatar:
+              - order: 2
+              - flex: 0 0 auto
+    cards: []
+    theme: Material You
