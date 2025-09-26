@@ -13,7 +13,6 @@ This repository contains the YAML configuration for a responsive, Material You-i
 | :-----------------------------------: | :-----------------------------------: | :-----------------------------------: |
 | ![Mobile Preview 1](/dashboards/IMG_1222.jpeg) | ![Mobile Preview 2](/dashboards/IMG_1223.jpeg) | ![Mobile Preview 3](/dashboards/IMG_1224.jpeg) |
 | ![Mobile Preview 4](/dashboards/IMG_1225.jpeg) | ![Mobile Preview 5](/dashboards/IMG_1226.jpeg) | ![Mobile Preview 6](/dashboards/IMG_1228.jpeg) |
-| ![Mobile Preview 7](/dashboards/IMG_1229.jpeg) | ![Mobile Preview 8](/dashboards/IMG_1230.jpeg) |                                       |
 
 ## How to Use
 
